@@ -1,0 +1,18 @@
+{
+  "output-value.delete": "Delete output value",
+  "output-value.valid": "Valid output value",
+  "output-value.invalid": "Invalid output value",
+  "output-value.raise": "Move ouput value up",
+  "output-value.lower": "Move ouput value down",
+  "field-output.empty": "Empty output",
+  "field-output.new-value": "New value",
+  "field-output.delete": "Delete field output",
+  "field-output.valid": "Field output is valid",
+  "field-output.invalid": "Field output is invalid",
+  "template-field-output.applicable": "Template field is applicable for selected target",
+  "template-field-output.non-applicable": "Template field is not applicable selected target",
+  "test-field-output.no-score-label": "n/a",
+  "test-field-output.add-goal": "Add translation goal",
+  "test-field-output.tooltip.score": "Test score",
+  "test-field-output.tooltip.no-score": "Translation goal is undefined"
+}
