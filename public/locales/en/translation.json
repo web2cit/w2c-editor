@@ -14,5 +14,17 @@
   "test-field-output.no-score-label": "n/a",
   "test-field-output.add-goal": "Add translation goal",
   "test-field-output.tooltip.score": "Test score",
-  "test-field-output.tooltip.no-score": "Translation goal is undefined"
+  "test-field-output.tooltip.no-score": "Translation goal is undefined",
+  "translation-field.name.itemType": "Item type",
+  "translation-field.name.title": "Title",
+  "translation-field.name.authorLast": "Author last/full names",
+  "translation-field.name.authorFirst": "Author first names",
+  "translation-field.name.date": "Date",
+  "translation-field.name.publishedIn": "Published in",
+  "translation-field.name.publishedBy": "Published by",
+  "translation-field.name.language": "Language",
+  "translation-field.name.control": "Control",
+  "translation-field.tooltip.delete": "Remove translation field",
+  "translation-field.tooltip.non-delete": "Cannot remove field with template or test fields defined",
+  "translation-field.tooltip.copy": "Copy translation output as translation goal"
 }

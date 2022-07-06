@@ -8,6 +8,7 @@ interface TestFieldOutputComponentProps {
   values: OutputValue[] | undefined;
   fieldname: string;
   score: number | undefined;
+  // consider pulling these from a configuration file based on the fieldname
   mandatory: boolean; // mandatory fields won't accept an empty output
   array: boolean;
 }
