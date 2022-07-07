@@ -1,5 +1,5 @@
-import { Box, Button, Card, CardContent, IconButton, Tooltip } from "@mui/material";
-import { Delete, Help } from '@mui/icons-material';
+import { Box, Card, CardContent, Divider, IconButton, Tooltip } from "@mui/material";
+import { ChevronRight, Delete, Help } from '@mui/icons-material';
 import React from "react";
 import { useTranslation } from 'react-i18next';
 import TemplateFieldOutput from './TemplateFieldOutput';
@@ -18,6 +18,13 @@ interface TranslationFieldComponentProps {
     score: number | undefined;
   };
 }
+
+// TODO: many of the component settings within a field depend on the field type
+// maybe we could create a field context
+// or just pass the fieldname, and have components down in the hierarchy get what
+// they need from a global configuration file
+// Likewise the domain may be a higher-order context
+// And the selected target (including its caches)
 
 function TranslationFieldComponent(props: TranslationFieldComponentProps) {
   const { t } = useTranslation();
@@ -70,17 +77,16 @@ function TranslationFieldComponent(props: TranslationFieldComponentProps) {
           values={props.translation.values}
           applicable={props.translation.applicable}
         />
-        <Tooltip
-          title={t('translation-field.tooltip.copy')}
-        >
-          <Button
-            variant="contained"
-            size="small"
-            sx={{
-              minWidth: 0
-            }}
-          >{'>'}</Button>
-        </Tooltip>
+        {/* Make sure it is not interpreted as collapse/expand */}
+        <Divider orientation="vertical" flexItem>
+          <Tooltip
+            title={t('translation-field.tooltip.copy')}
+          >
+            <IconButton>
+              <ChevronRight/>
+            </IconButton>
+          </Tooltip>
+        </Divider>
         <TestFieldOutput
           fieldname={props.fieldname}
           values={props.goal.values}
@@ -90,9 +96,11 @@ function TranslationFieldComponent(props: TranslationFieldComponentProps) {
           array={true}
         />
       </CardContent>
-      <CardContent>
-        Field details here
-      </CardContent>
+      <Collapse>
+        <CardContent>
+          Field details here
+        </CardContent>
+      </Collapse>
     </Card>
   )
 }
