@@ -140,3 +140,18 @@ export const selections = [
     ]
   }
 ]
+
+export const transformations = [
+  {
+    type: "",
+    params: [
+      {
+        name: "",
+        type: "string",
+        validationFn: () => true,
+        options: []
+      }
+    ],
+    itemwise: true
+  }
+]

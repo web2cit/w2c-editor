@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardActions, CardContent, IconButton, Stack, Tooltip, Typography } from "@mui/material"
 import React from "react";
-import OutputValueMaterial from "./OutputValue";
+import OutputValueComponent from "./OutputValue";
 import { OutputValue } from "./types";
 import { Delete, Check, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -42,7 +42,7 @@ function FieldOutputComponent(props: FieldOutputComponentProps) {
         {
           props.values.length ?
           props.values.map((value) => (
-            <OutputValueMaterial
+            <OutputValueComponent
               value={value.value}
               valid={value.valid}
               fieldname={props.fieldname}

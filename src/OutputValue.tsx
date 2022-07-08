@@ -1,15 +1,15 @@
 import React from "react";
 import {
   TextField,
-  IconButton,
   Tooltip,
   MenuItem,
   Card,
   CardActions,
   CardContent
 } from '@mui/material';
-import { KeyboardArrowUp, KeyboardArrowDown, Delete, Check, Close } from '@mui/icons-material';
+import { Check, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import ListItemActions from './ListItemActions';
 
 interface OutputValueProps {
   value: string;
@@ -49,32 +49,6 @@ function OutputValue(props: OutputValueProps) {
           ))
         }
         </TextField>
-      </CardContent>
-      <CardActions>
-        {
-          props.editable && !props.first &&
-          <Tooltip title={t("output-value.raise")}>
-            <IconButton>
-              <KeyboardArrowUp />              
-            </IconButton>
-          </Tooltip>
-        }
-        {
-          props.editable && !props.last &&
-          <Tooltip title={t("output-value.lower")}>
-            <IconButton>
-              <KeyboardArrowDown/>
-            </IconButton>
-          </Tooltip>
-        }
-        {
-          props.editable &&
-          <Tooltip title={t("output-value.delete")}>
-            <IconButton>
-              <Delete />              
-            </IconButton>
-          </Tooltip>
-        }
         {
           props.valid ?
           (
@@ -92,6 +66,16 @@ function OutputValue(props: OutputValueProps) {
             </Tooltip>
           )
         }
+      </CardContent>
+      <CardActions>
+      { props.editable &&
+        <ListItemActions
+          keyPrefix='output-value'
+          first={props.first}
+          last={props.last}
+          editable={props.editable}
+        />
+      }
       </CardActions>
     </Card>
   )
