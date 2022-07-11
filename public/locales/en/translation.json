@@ -11,6 +11,8 @@
   "field-output.invalid": "Field output is invalid",
   "template-field-output.applicable": "Template field is applicable for selected target",
   "template-field-output.non-applicable": "Template field is not applicable selected target",
+  "template-field-output.tooltip.toggle-details-on": "Show template field details",
+  "template-field-output.tooltip.toggle-details-off": "Hide template field details",
   "test-field-output.no-score-label": "n/a",
   "test-field-output.add-goal": "Add translation goal",
   "test-field-output.tooltip.score": "Test score",
@@ -23,7 +25,7 @@
   "template-field.required": "Required",
   "template-field.tooltip.mandatory": "Mandatory field \"{{fieldname}}\" is always required",
   "template-field.tooltip.required": "Whether the field output should be valid for the template to be applicable",
-  "procedure-list.new": "New procedure",
+  "template-field.add-procedure": "Add translation procedure",
   "translation-step.tooltip.show-output": "Show output",
   "translation-step.tooltip.hide-output": "Show output",
   "translation-step.list-item-action.raise": "Move step up",
@@ -33,6 +35,8 @@
   "transformation-config.type": "Type",
   "transformation-config.itemwise.enable": "Apply transformation to each input value independently",
   "transformation-config.itemwise.disable": "Apply transformation to the entire input as a whole",
+
+  "translation-procedure.add-selection": "Add selection step",
 
   "field.item-type.label": "Item type",
   "field.item-type.description": "Type of the cited resource",

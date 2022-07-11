@@ -1,4 +1,5 @@
 import { Button, Card, CardContent, Chip, Tooltip } from "@mui/material";
+import { SxProps } from "@mui/system";
 import React from "react";
 import FieldOutput from "./FieldOutput";
 import { OutputValue } from "./types";
@@ -11,6 +12,7 @@ interface TestFieldOutputComponentProps {
   // consider pulling these from a configuration file based on the fieldname
   mandatory: boolean; // mandatory fields won't accept an empty output
   array: boolean;
+  sx: SxProps;
 }
 
 function TestFieldOutputComponent(props: TestFieldOutputComponentProps) {
@@ -19,7 +21,8 @@ function TestFieldOutputComponent(props: TestFieldOutputComponentProps) {
     <Card
       sx={{
         display: "flex",
-        alignItems: "flex-end"
+        alignItems: "flex-end",
+        ...props.sx
       }}
     >
       <CardContent

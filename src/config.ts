@@ -143,13 +143,58 @@ export const selections = [
 
 export const transformations = [
   {
-    type: "",
+    type: "join",
     params: [
       {
-        name: "",
+        name: "separator",
         type: "string",
         validationFn: () => true,
         options: []
+      }
+    ],
+    itemwise: true
+  },
+  {
+    type: "split",
+    params: [
+      {
+        name: "separator",
+        type: "string",
+        validationFn: () => true,
+        options: []
+      }
+    ],
+    itemwise: true
+  },
+  {
+    type: "date",
+    params: [
+      {
+        name: "locale",
+        type: "string",
+        validationFn: () => true,
+        options: [
+          [
+            "ca",
+            "da",
+            "de",
+            "en",
+            "es",
+            "fi",
+            "fr",
+            "it",
+            "ja",
+            "ko",
+            "nl",
+            "no",
+            "pl",
+            "pt",
+            "ru",
+            "sv",
+            "zh-CN",
+            "zh-TW"
+          ],
+        ]
       }
     ],
     itemwise: true

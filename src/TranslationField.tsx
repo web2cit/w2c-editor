@@ -1,11 +1,12 @@
-import { Box, Card, CardContent, Divider, IconButton, Tooltip } from "@mui/material";
+import { Box, Card, CardContent, Collapse, Divider, IconButton, Tooltip } from "@mui/material";
 import { ChevronRight, Delete, Help } from '@mui/icons-material';
 import React from "react";
 import { useTranslation } from 'react-i18next';
 import TemplateFieldOutput from './TemplateFieldOutput';
 import TestFieldOutput from './TestFieldOutput';
-import { OutputValue } from './types';
+import { TemplateField, OutputValue } from './types';
 import { camelToKebabCase } from './utils';
+import { TemplateFieldComponent } from './TemplateField';
 
 interface TranslationFieldComponentProps {
   fieldname: string;  // should be controlled?
@@ -17,6 +18,7 @@ interface TranslationFieldComponentProps {
     values: OutputValue[];
     score: number | undefined;
   };
+  template: TemplateField;  
 }
 
 // TODO: many of the component settings within a field depend on the field type
@@ -33,7 +35,9 @@ function TranslationFieldComponent(props: TranslationFieldComponentProps) {
     <Card>
       <CardContent
         sx={{
-          display: "flex"
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 2
         }}
       >
         {/* TranslationFieldInfo */}
@@ -76,6 +80,8 @@ function TranslationFieldComponent(props: TranslationFieldComponentProps) {
           fieldname={props.fieldname}
           values={props.translation.values}
           applicable={props.translation.applicable}
+          detailsVisibility={true}
+          sx={{ flex: 1 }}
         />
         {/* Make sure it is not interpreted as collapse/expand */}
         <Divider orientation="vertical" flexItem>
@@ -94,11 +100,17 @@ function TranslationFieldComponent(props: TranslationFieldComponentProps) {
           // delete!
           mandatory={true}
           array={true}
+          sx={{ flex: 1 }}
         />
       </CardContent>
-      <Collapse>
+      <Divider variant="middle" />
+      <Collapse in={true}>
         <CardContent>
-          Field details here
+          <TemplateFieldComponent
+            fieldname={props.fieldname}
+            required={props.template.required}
+            procedures={props.template.procedures}
+          />
         </CardContent>
       </Collapse>
     </Card>

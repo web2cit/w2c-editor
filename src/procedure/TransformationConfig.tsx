@@ -52,7 +52,7 @@ function TransformationConfigComponent(props: TransformationConfigComponentProps
     }
     </Select>
     {
-      transformation.config.map((param, index) => {
+      transformation.params.map((param, index) => {
         const { name, options } = param;
         const fieldOptions: string[] = [];
         const { value, error } = props.args[index];
@@ -60,13 +60,13 @@ function TransformationConfigComponent(props: TransformationConfigComponentProps
         return (
           <StepConfigParam
             label={t(camelToKebabCase(
-              `selection.${props.type}.config.${name}.label`
+              `transformation.${props.type}.config.${name}.label`
             ))}
             options={fieldOptions.length ? fieldOptions : options}
             prefix={
               fieldOptions.length ?
               `field.${props.fieldname}` :
-              `selection.${props.type}.config.${name}`
+              `transformation.${props.type}.config.${name}`
             }
             value={value}
             error={error}
@@ -91,4 +91,4 @@ function TransformationConfigComponent(props: TransformationConfigComponentProps
   )
 }
 
-export default SelectionConfigComponent;
+export default TransformationConfigComponent;

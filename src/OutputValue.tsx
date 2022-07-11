@@ -13,7 +13,7 @@ import ListItemActions from './ListItemActions';
 
 interface OutputValueProps {
   value: string;
-  valid: boolean;
+  valid: boolean | undefined;
   editable: boolean;
   fieldname: string; // shall this be part of the context?
   first?: boolean;

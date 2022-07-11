@@ -4,26 +4,30 @@ export interface OutputValue {
 }
 
 
-interface TemplateField {
+export interface TemplateField {
   fieldname: string;
   required: boolean;
-  procedures: Procedure[];
+  procedures: TranslationProcedure[];
 }
-export interface Procedure {
+export interface TranslationProcedure {
   selections: SelectionStep[];
   transformations: TransformationStep[];
 }
-export interface SelectionStep {
+
+export interface SelectionStep extends TranslationStep {};
+
+export interface TransformationStep extends TranslationStep {
+  itemwise: boolean;
+}
+
+interface TranslationStep {
   type: string;
-  config: string[];
+  args: StepArgument[];
   output: string[];
   error?: Error;
 }
 
-export interface TransformationStep {
-  type: string;
-  itemwise: boolean;
-  config: string[];
-  output: string[];
+interface StepArgument {
+  value: string;
   error?: Error;
 }
