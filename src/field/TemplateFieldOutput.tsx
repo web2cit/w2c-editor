@@ -3,7 +3,7 @@ import { Card, CardContent, IconButton, Tooltip } from "@mui/material";
 import { SxProps } from "@mui/system";
 import React from "react";
 import FieldOutput from "./FieldOutput";
-import { OutputValue } from "./types";
+import { OutputValue } from "../types";
 import { useTranslation } from 'react-i18next';
 
 interface TemplateFieldOutputComponentProps {

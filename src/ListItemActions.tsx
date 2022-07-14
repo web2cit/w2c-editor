@@ -21,28 +21,37 @@ function ListItemActionsComponent(props: ListItemActionsComponentProps) {
   const keyPrefix = props.keyPrefix ? props.keyPrefix + "." : "";
   return (
     <Box
-      sx={props.sx}
+      sx={{
+        display: "flex",
+        ...props.sx
+      }}
     >
       <Tooltip
         title={t(keyPrefix + 'list-item-actions.raise')}
       >
-        <IconButton disabled={props.first}>
-          <KeyboardArrowUp/>
-        </IconButton>
+        <div>
+          <IconButton disabled={props.first || !props.editable}>
+            <KeyboardArrowUp/>
+          </IconButton>
+        </div>
       </Tooltip>
       <Tooltip
         title={t(keyPrefix + 'list-item-actions.lower')}
       >
-        <IconButton disabled={props.last}>
-          <KeyboardArrowDown/>
-        </IconButton>
+        <div>
+          <IconButton disabled={props.last || !props.editable}>
+            <KeyboardArrowDown/>
+          </IconButton>
+        </div>
       </Tooltip>
       <Tooltip
         title={t(keyPrefix + 'list-item-actions.delete')}
       >
-        <IconButton>
-          <Delete/>
-        </IconButton>
+        <div>
+          <IconButton disabled={!props.editable}>
+            <Delete/>
+          </IconButton>
+        </div>
       </Tooltip>
     </Box>
   )

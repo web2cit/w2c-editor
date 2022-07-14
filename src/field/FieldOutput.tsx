@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardActions, CardContent, IconButton, Stack, Tooltip, Typography } from "@mui/material"
 import React from "react";
 import OutputValueComponent from "./OutputValue";
-import { OutputValue } from "./types";
+import { OutputValue } from "../types";
 import { Delete, Check, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 

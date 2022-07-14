@@ -3,9 +3,24 @@ export interface OutputValue {
   valid?: boolean;
 }
 
-
-export interface TemplateField {
+export interface FieldResult {
   fieldname: string;
+  translation: FieldTranslation;
+  goal: FieldGoal;
+  template: FieldTemplate
+}
+
+export interface FieldTranslation {
+  values: OutputValue[];
+  applicable: boolean;
+}
+
+export interface FieldGoal {
+  values: OutputValue[];
+  score: number | undefined;
+}
+
+export interface FieldTemplate {
   required: boolean;
   procedures: TranslationProcedure[];
 }

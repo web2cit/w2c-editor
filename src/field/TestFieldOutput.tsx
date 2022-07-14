@@ -2,8 +2,9 @@ import { Button, Card, CardContent, Chip, Tooltip } from "@mui/material";
 import { SxProps } from "@mui/system";
 import React from "react";
 import FieldOutput from "./FieldOutput";
-import { OutputValue } from "./types";
+import { OutputValue } from "../types";
 import { useTranslation } from 'react-i18next';
+import { ScoreComponent } from "../ScoreChip";
 
 interface TestFieldOutputComponentProps {
   values: OutputValue[] | undefined;
@@ -47,26 +48,9 @@ function TestFieldOutputComponent(props: TestFieldOutputComponentProps) {
       }
       </CardContent>
       <CardContent>
-      {
-        // consider creating a separate score component
-        // would it be ok to use the same component for field and target score?
-        props.score === undefined ?
-        <Tooltip title={t("test-field-output.tooltip.no-score")}>
-          <Chip label={t("test-field-output.no-score-label")} />
-        </Tooltip> :
-        <Tooltip title={t("test-field-output.tooltip.score")}>
-          <Chip
-            label={`${props.score}%`}
-            color={
-              props.score > 66 ?
-              "success" :
-              props.score > 33 ?
-              "warning" :
-              "error"
-            }
-          />
-        </Tooltip>
-      }
+        <ScoreComponent
+          score={props.score}
+        />
       </CardContent>
     </Card>
   )

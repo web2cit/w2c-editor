@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Check, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import ListItemActions from './ListItemActions';
+import ListItemActions from '../ListItemActions';
 
 interface OutputValueProps {
   value: string;

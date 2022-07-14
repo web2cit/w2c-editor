@@ -4,9 +4,9 @@ import React from "react";
 import { useTranslation } from 'react-i18next';
 import TemplateFieldOutput from './TemplateFieldOutput';
 import TestFieldOutput from './TestFieldOutput';
-import { TranslationProcedure } from './types';
-import { camelToKebabCase } from './utils';
-import { TranslationProcedureCard } from './procedure/TranslationProcedure';
+import { TranslationProcedure } from '../types';
+import { camelToKebabCase } from '../utils';
+import { TranslationProcedureCard } from '../procedure/TranslationProcedure';
 
 interface TemplateFieldComponentProps {
   fieldname: string;  // should be controlled?

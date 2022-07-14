@@ -13,10 +13,10 @@
   "template-field-output.non-applicable": "Template field is not applicable selected target",
   "template-field-output.tooltip.toggle-details-on": "Show template field details",
   "template-field-output.tooltip.toggle-details-off": "Hide template field details",
-  "test-field-output.no-score-label": "n/a",
   "test-field-output.add-goal": "Add translation goal",
-  "test-field-output.tooltip.score": "Test score",
-  "test-field-output.tooltip.no-score": "Translation goal is undefined",
+  "score.no-score-label": "n/a",
+  "score.tooltip.score": "Test score",
+  "score.tooltip.no-score": "Translation goal is undefined",
   
    
   "translation-field.tooltip.delete": "Remove translation field",
@@ -35,8 +35,15 @@
   "transformation-config.type": "Type",
   "transformation-config.itemwise.enable": "Apply transformation to each input value independently",
   "transformation-config.itemwise.disable": "Apply transformation to the entire input as a whole",
-
   "translation-procedure.add-selection": "Add selection step",
+  "target-result.template-selector.label": "Translation template",
+  "target-result.add-field": "Add translation field",
+  "target-result.title": "Translation result for target {{path}}",
+  "target-result.applicable": "Translation template can be used to translate the target selected",
+  "target-result.non-applicable": "Translation template cannot be used to translate the target selected",
+  "target-result.score.tooltip.score": "Test score", 
+  "target-result.score.tooltip.no-score": "No translation goals defined for the target selected", 
+  "config-viewer.add-pattern": "Add URL path pattern",
 
   "field.item-type.label": "Item type",
   "field.item-type.description": "Type of the cited resource",
