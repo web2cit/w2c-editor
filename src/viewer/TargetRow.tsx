@@ -4,6 +4,7 @@ import { Box, Card, CardActions, CardContent, IconButton, Typography } from "@mu
 import { ScoreComponent } from "../ScoreChip";
   
 interface TargetRowProps {
+  elevated: boolean;
   path: string;
   score: number | undefined;
   borderless: boolean;  // parent template matches path
@@ -14,6 +15,9 @@ export function TargetRow(props: TargetRowProps) {
   
   return (
     <Card
+      elevation={
+        props.elevated ? undefined : 0
+      }
       sx={{
         display: "flex",
         alignItems: "flex-start"

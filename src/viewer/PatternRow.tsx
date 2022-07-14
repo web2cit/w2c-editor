@@ -95,11 +95,13 @@ export function PatternRow(props: PatternRowProps) {
             />
           </Box>          
           <ListItemActionsComponent
-            editable={true}
+            first={props.first}
+            last={props.last}
+            editable={!fallback}
           />
         </Box>
         <Collapse in={!collapsed}>
-          <Stack>
+          <Stack spacing={1}>
           {
             templates.map((template, index) => {
 
@@ -110,7 +112,9 @@ export function PatternRow(props: PatternRowProps) {
                 <TemplateRow
                   path={template.path}
                   label={template.label}
-                  targets={targets}        
+                  targets={targets}
+                  first={index === 0}
+                  last={index === props.templates.length - 1}     
                 />
               );
             })
