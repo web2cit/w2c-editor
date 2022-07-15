@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  AutocompleteRenderInputParams,
   TextField,
 } from "@mui/material";
 import React, { ReactNode } from "react";
@@ -18,7 +19,7 @@ interface StepConfigParamComponentProps {
 
 function StepConfigParamComponent(props: StepConfigParamComponentProps) {
   const { t } = useTranslation();
-  const renderInput = (inputParams) => {
+  const renderInput = (inputParams?: AutocompleteRenderInputParams) => {
     return (
       <TextField
         {...inputParams}
@@ -43,7 +44,7 @@ function StepConfigParamComponent(props: StepConfigParamComponentProps) {
       />
     )
   } else {
-    return renderInput({});
+    return renderInput();
   }
 }
 

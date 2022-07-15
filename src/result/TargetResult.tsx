@@ -14,7 +14,7 @@ interface TargetResultComponentProps {
     path: string;
     label?: string;
   }[];
-  templatePath: string;
+  // templatePath: string;  // make it a state
   fields: FieldResult[]
 }
   

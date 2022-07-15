@@ -7,7 +7,7 @@ interface TargetRowProps {
   elevated: boolean;
   path: string;
   score: number | undefined;
-  borderless: boolean;  // parent template matches path
+  current: boolean;
 }
   
 export function TargetRow(props: TargetRowProps) {
@@ -20,7 +20,8 @@ export function TargetRow(props: TargetRowProps) {
       }
       sx={{
         display: "flex",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        background: props.current ? "lightsteelblue" : undefined
       }}
     >
       {/* <CardActions>

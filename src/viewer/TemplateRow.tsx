@@ -14,18 +14,21 @@ interface TemplateRowProps {
   }[];
   first?: boolean;
   last?: boolean;
+  currentPath?: string;
 }
   
 export function TemplateRow(props: TemplateRowProps) {
   const { t } = useTranslation();
   const collapsed = false;
   const fallback = props.path === undefined;
+  const current = props.currentPath === props.path;
 
   return (
     <Card
       sx={{
         display: "flex",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        background: current ? "lightsteelblue" : undefined
       }}
     >
       <CardActions>
@@ -97,7 +100,8 @@ export function TemplateRow(props: TemplateRowProps) {
               <TargetRow
                 elevated={target.path !== props.path}
                 path={target.path}
-                score={target.score}   
+                score={target.score}
+                current={target.path === props.currentPath}
               />
             ))
           }

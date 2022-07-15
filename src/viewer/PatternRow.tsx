@@ -18,6 +18,7 @@ interface PatternRowProps {
     score: number | undefined;
     template: string | undefined;
   }[];
+  currentPath?: string;
   // editable: boolean;
   first?: boolean;
   last?: boolean;
@@ -114,7 +115,8 @@ export function PatternRow(props: PatternRowProps) {
                   label={template.label}
                   targets={targets}
                   first={index === 0}
-                  last={index === props.templates.length - 1}     
+                  last={index === props.templates.length - 1}
+                  currentPath={props.currentPath}
                 />
               );
             })

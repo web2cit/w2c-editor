@@ -14,21 +14,37 @@ interface ConfigViewerProps {
     label?: string;
     pattern: string | undefined;
   }[];
-  targets: {
-    path: string;
-    score: number | undefined;
-    pattern: string | undefined;
-    template: string | undefined;
-  }[];
+  targets: Target[];
+  currentPath?: string;  // highlight the target and template in blue
+  selectedPath?: string;  // collapse the viewer
+}
+
+interface Target {
+  path: string;
+  score: number | undefined;
+  pattern: string | undefined;
+  template: string | undefined;
 }
   
 export function ConfigViewer(props: ConfigViewerProps) {
   const { t } = useTranslation();
-  const patterns = [
+  let patterns = [
     ...props.patterns
   ];
   if (props.fallbackPattern) patterns.push({ pattern: undefined });
 
+  let selectedTarget: Target;
+  if (props.selectedPath !== undefined) {
+    selectedTarget = props.targets.filter(
+      (target) => target.path === props.selectedPath
+    )[0];
+    if (selectedTarget !== undefined) {
+      patterns = patterns.filter(
+        (pattern) => pattern.pattern === selectedTarget.pattern
+      );
+    }
+  }
+  
   return (
     <Box>
       <Stack
@@ -37,11 +53,25 @@ export function ConfigViewer(props: ConfigViewerProps) {
       {
         patterns.map((pattern, index) => {
           const templates = props.templates.filter(
-            (template) => template.pattern === pattern.pattern
+            (template) => {
+              if (selectedTarget === undefined) {
+                return template.pattern === pattern.pattern;
+              } else {
+                return (
+                  template.pattern === pattern.pattern &&
+                  template.path === selectedTarget.template
+                );
+              }
+            }
           );
-          const targets = props.targets.filter(
-            (target) => target.pattern === pattern.pattern
-          );
+          let targets;
+          if (selectedTarget === undefined) {
+            targets = props.targets.filter(
+              (target) => target.pattern === pattern.pattern
+            );
+          } else {
+            targets = [selectedTarget];
+          }
           return (
             <PatternRow
               pattern={pattern.pattern}
@@ -51,6 +81,7 @@ export function ConfigViewer(props: ConfigViewerProps) {
               targets={targets}
               first={index === 0}
               last={index === props.patterns.length - 1}
+              currentPath={props.currentPath}
             />
           )
         })

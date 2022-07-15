@@ -44,6 +44,9 @@
   "target-result.score.tooltip.score": "Test score", 
   "target-result.score.tooltip.no-score": "No translation goals defined for the target selected", 
   "config-viewer.add-pattern": "Add URL path pattern",
+  "config-revision-card.title.patterns": "URL path patterns",
+  "config-revision-card.title.templates": "Translation templates",
+  "config-revision-card.title.tests": "Translation tests",
 
   "field.item-type.label": "Item type",
   "field.item-type.description": "Type of the cited resource",
