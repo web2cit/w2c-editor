@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Chip, Tooltip } from "@mui/material";
   
 interface ScoreComponentProps {
-  score: number | undefined;
+  score: number | null | undefined;
   keyPrefix?: string;
 }
   
@@ -12,6 +12,16 @@ export function ScoreComponent(props: ScoreComponentProps) {
   const keyPrefix = props.keyPrefix ? props.keyPrefix + '.' : '';
 
   if (props.score === undefined) {
+    return (
+      <Tooltip
+        title={""}
+      >
+        <Chip
+          label="?"
+        />
+      </Tooltip>
+    )
+  } else if (props.score === null) {
     return (
       <Tooltip
         title={t(

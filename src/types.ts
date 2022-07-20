@@ -1,48 +1,114 @@
-export interface OutputValue {
+export interface ConfigMetadata {
+  revisions: ConfigRevision[];
+  revid: number | undefined;  // currently shown revision
+  changed: boolean;
+}
+
+interface ConfigRevision {
+  id: number;
+  timestamp: Date;
+}
+
+export interface FieldOutputValue {
   value: string;
-  valid?: boolean;
+  valid: boolean;
 }
 
-export interface FieldResult {
-  fieldname: string;
-  translation: FieldTranslation;
-  goal: FieldGoal;
-  template: FieldTemplate
-}
+export type Score = number | null;  // we need undefined for pending output
+export type TemplatePath = string | undefined;
 
-export interface FieldTranslation {
-  values: OutputValue[];
+//
+
+export interface TargetResult {
+  template: TemplatePath;
+  preferred: boolean;  // consider removing
+  output: (
+    TargetOutput | 
+    null |  // no output will be returned using this (?) template
+    undefined  // the output is not ready yet
+  );
+}
+export interface TargetOutput {
+  fields: TargetFieldOutput[];
+  // do we need these two or can we get them on the fly?
   applicable: boolean;
+  score: Score;
 }
 
-export interface FieldGoal {
-  values: OutputValue[];
-  score: number | undefined;
+export interface TargetFieldOutput {
+  name: string;
+  template: TemplateFieldOutput;
+  test: TestFieldOutput;
 }
 
-export interface FieldTemplate {
+//
+export interface PatternConfig {
+  pattern: string | undefined;
+  label?: string;
+}
+
+// template config
+export interface TemplateConfig {
+  path: string | undefined;
+  label?: string;
+  fields: TemplateFieldConfig[];
+}
+
+export interface TemplateFieldConfig {
+  name: string;
   required: boolean;
-  procedures: TranslationProcedure[];
-}
-export interface TranslationProcedure {
-  selections: SelectionStep[];
-  transformations: TransformationStep[];
+  procedures: ProcedureConfig[];
 }
 
-export interface SelectionStep extends TranslationStep {};
+export interface ProcedureConfig {
+  selections: SelectionConfig[];
+  transformations: TransformationConfig[];
+}
 
-export interface TransformationStep extends TranslationStep {
+export interface SelectionConfig extends StepConfig {};
+
+export interface TransformationConfig extends StepConfig {
   itemwise: boolean;
 }
-
-interface TranslationStep {
+export interface StepConfig {
   type: string;
-  args: StepArgument[];
-  output: string[];
-  error?: Error;
+  args: StepArgument[]
 }
 
 interface StepArgument {
   value: string;
   error?: Error;
+}
+
+// template output
+export interface TemplateFieldOutput {
+  name: string;
+  values: FieldOutputValue[];
+  applicable: boolean;
+  procedures: ProcedureOutput[];
+}
+
+export interface ProcedureOutput {
+  selections: StepOutput[];
+  transformations: StepOutput[];
+}
+
+export interface StepOutput {
+  values: string[];  // is there empty output if error?
+  error?: Error;
+}
+
+//
+export interface TestConfig {
+  fields: TestFieldConfig[];
+}
+
+export interface TestFieldConfig {
+  name: string;
+  goal: FieldOutputValue[] | undefined;
+}
+
+export interface TestFieldOutput {
+  name: string;
+  score: Score;
 }

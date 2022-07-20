@@ -9,18 +9,12 @@ import { FilterNone } from '@mui/icons-material'
 import StepConfigParam from './StepConfigParam';
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { TransformationStep } from '../types';
+import { TransformationConfig } from '../types';
 import { camelToKebabCase } from '../utils';
 import { transformations } from '../config';
 
-interface TransformationConfigComponentProps {
+interface TransformationConfigComponentProps extends TransformationConfig {
   fieldname: string;
-  type: string;
-  args: {
-    value: string;
-    error?: Error;
-  }[]
-  itemwise: boolean;
 }
 
 function TransformationConfigComponent(props: TransformationConfigComponentProps) {

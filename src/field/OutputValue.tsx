@@ -10,10 +10,9 @@ import {
 import { Check, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import ListItemActions from '../ListItemActions';
+import { FieldOutputValue } from "../types";
 
-interface OutputValueProps {
-  value: string;
-  valid: boolean | undefined;
+interface OutputValueProps extends FieldOutputValue {
   editable: boolean;
   fieldname: string; // shall this be part of the context?
   first?: boolean;

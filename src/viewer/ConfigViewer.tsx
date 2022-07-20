@@ -2,28 +2,31 @@ import React from "react";
 import { useTranslation } from 'react-i18next';
 import { Box, Button,  Stack } from "@mui/material";
 import { PatternRow } from "./PatternRow";
+import { PatternConfig, TemplateConfig } from "../types";
   
 interface ConfigViewerProps {
   fallbackPattern: boolean;
-  patterns: {
-    pattern: string | undefined;
-    label?: string;
-  }[];
-  templates: {
-    path: string | undefined;
-    label?: string;
-    pattern: string | undefined;
-  }[];
+  fallbackTemplate: boolean;
+  patterns: PatternConfig[];
+  templates: Template[];
   targets: Target[];
+  // move these two to context?
   currentPath?: string;  // highlight the target and template in blue
   selectedPath?: string;  // collapse the viewer
 }
 
+// this pattern-sorted template interface is also defined in Sidebar
+interface Template extends TemplateConfig {
+  pattern: string | undefined;
+}
+
+// a similar target interface, with output and without score is defined in
+// Sidebar
 interface Target {
   path: string;
-  score: number | undefined;
   pattern: string | undefined;
   template: string | undefined;
+  score: number | undefined;
 }
   
 export function ConfigViewer(props: ConfigViewerProps) {
@@ -76,7 +79,7 @@ export function ConfigViewer(props: ConfigViewerProps) {
             <PatternRow
               pattern={pattern.pattern}
               label={pattern.label}
-              fallbackTemplate={true}
+              fallbackTemplate={props.fallbackTemplate}
               templates={templates}
               targets={targets}
               first={index === 0}

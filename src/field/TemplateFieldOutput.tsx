@@ -1,15 +1,16 @@
 import { Close, Check, Visibility, VisibilityOff } from "@mui/icons-material";
-import { Card, CardContent, IconButton, Tooltip } from "@mui/material";
+import { Card, CardContent, IconButton, Skeleton, Tooltip } from "@mui/material";
 import { SxProps } from "@mui/system";
 import React from "react";
 import FieldOutput from "./FieldOutput";
-import { OutputValue } from "../types";
+import { 
+  TemplateFieldOutput,
+} from "../types";
 import { useTranslation } from 'react-i18next';
 
 interface TemplateFieldOutputComponentProps {
-  values: OutputValue[];
-  fieldname: string;
-  applicable: boolean;
+  name: string;
+  output: TemplateFieldOutput | undefined;
   sx?: SxProps;
   detailsVisibility: boolean;
 }
@@ -30,12 +31,11 @@ function TemplateFieldOutputComponent(props: TemplateFieldOutputComponentProps) 
         }}
       >
         <FieldOutput
-          values={props.values}
-          fieldname={props.fieldname}
+          values={props.output && props.output.values}
+          fieldname={props.name}
           editable={false}
           minLength={1}  // empty template outputs are invalid
-        ></FieldOutput>
-        
+        />        
       </CardContent>
       <CardContent
         sx={{
@@ -63,13 +63,17 @@ function TemplateFieldOutputComponent(props: TemplateFieldOutputComponentProps) 
         </Tooltip>
       }
       {
-          props.applicable ?
+        props.output === undefined ?
+        <Skeleton variant="circular" animation="wave" /> :
+        (
+          props.output.applicable ?
           <Tooltip title={t("template-field-output.applicable")}>
             <Check />
           </Tooltip> :
           <Tooltip title={t("template-field-output.non-applicable")}>
             <Close />
           </Tooltip>
+        )
         }
       </CardContent>
     </Card>

@@ -2,17 +2,23 @@ import { Box, Card, CardContent, Collapse, Divider, IconButton, Tooltip } from "
 import { ChevronRight, Delete, Help } from '@mui/icons-material';
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import TemplateFieldOutput from './TemplateFieldOutput';
-import TestFieldOutput from './TestFieldOutput';
-import { FieldTranslation, FieldGoal, FieldTemplate } from '../types';
+import TemplateFieldOutputComponent from './TemplateFieldOutput';
+import TestFieldComponent from './TestField';
+import {
+  TemplateFieldConfig,
+  TemplateFieldOutput,
+  TestFieldConfig,
+  TestFieldOutput
+} from '../types';
 import { camelToKebabCase } from '../utils';
 import { TemplateFieldComponent } from './TemplateField';
 
-interface TranslationFieldComponentProps {
-  fieldname: string;  // should be controlled?
-  translation: FieldTranslation;
-  goal: FieldGoal;
-  template: FieldTemplate;
+interface TargetFieldComponentProps {
+  name: string;  // should be controlled?
+  templateConfig: TemplateFieldConfig;
+  templateOutput: TemplateFieldOutput | undefined;
+  testConfig: TestFieldConfig;
+  testOutput: TestFieldOutput | undefined;
 }
 
 // TODO: many of the component settings within a field depend on the field type
@@ -22,7 +28,7 @@ interface TranslationFieldComponentProps {
 // Likewise the domain may be a higher-order context
 // And the selected target (including its caches)
 
-export function TranslationFieldComponent(props: TranslationFieldComponentProps) {
+export function TargetFieldComponent(props: TargetFieldComponentProps) {
   const { t } = useTranslation();
   const deletable = true;
   return (
@@ -41,7 +47,7 @@ export function TranslationFieldComponent(props: TranslationFieldComponentProps)
           sx={{ display: "flex", flexDirection: "column"}}
         >
           {
-            t('translation-field.name.' + camelToKebabCase(props.fieldname))
+            t('translation-field.name.' + camelToKebabCase(props.name))
           }
           <Box
             sx={{
@@ -65,17 +71,16 @@ export function TranslationFieldComponent(props: TranslationFieldComponentProps)
             </Tooltip>
             <Tooltip
               title={
-                t('translation-field.info' + camelToKebabCase(props.fieldname))
+                t('translation-field.info' + camelToKebabCase(props.name))
               }
             >
               <Help />
             </Tooltip>
           </Box>
         </Box>
-        <TemplateFieldOutput
-          fieldname={props.fieldname}
-          values={props.translation.values}
-          applicable={props.translation.applicable}
+        <TemplateFieldOutputComponent
+          name={props.name}  // context?
+          output={props.templateOutput}
           detailsVisibility={true}
           sx={{ flex: 1 }}
         />
@@ -89,10 +94,10 @@ export function TranslationFieldComponent(props: TranslationFieldComponentProps)
             </IconButton>
           </Tooltip>
         </Divider>
-        <TestFieldOutput
-          fieldname={props.fieldname}
-          values={props.goal.values}
-          score={props.goal.score}
+        <TestFieldComponent
+          fieldname={props.name}
+          config={props.testConfig}
+          output={props.testOutput}
           // delete!
           mandatory={true}
           array={true}
@@ -103,9 +108,8 @@ export function TranslationFieldComponent(props: TranslationFieldComponentProps)
       <Collapse in={true}>
         <CardContent>
           <TemplateFieldComponent
-            fieldname={props.fieldname}
-            required={props.template.required}
-            procedures={props.template.procedures}
+            config={props.templateConfig}
+            output={props.templateOutput}
           />
         </CardContent>
       </Collapse>

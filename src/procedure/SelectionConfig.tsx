@@ -6,17 +6,12 @@ import {
 import StepConfigParam from './StepConfigParam';
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { SelectionStep } from '../types';
+import { SelectionConfig } from '../types';
 import { camelToKebabCase } from '../utils';
 import { selections } from '../config';
 
-interface SelectionConfigComponentProps {
+interface SelectionConfigComponentProps extends SelectionConfig {
   fieldname: string;
-  type: string;
-  args: {
-    value: string;
-    error?: Error;
-  }[]
 }
 
 function SelectionConfigComponent(props: SelectionConfigComponentProps) {

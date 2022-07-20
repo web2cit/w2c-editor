@@ -8,17 +8,20 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { SelectionStep, TransformationStep } from '../types';
+import {
+  ProcedureConfig,
+  ProcedureOutput
+} from '../types';
 import { camelToKebabCase } from '../utils';
 import ListItemActions from '../ListItemActions';
 import TranslationStep from './TranslationStep';
-import SelectionConfig from './SelectionConfig';
-import TransformationConfig from './TransformationConfig';
+import SelectionConfigComponent from './SelectionConfig';
+import TransformationConfigComponent from './TransformationConfig';
 
 interface TranslationProcedureCardProps {
-  fieldname: string;
-  selections: SelectionStep[];
-  transformations: TransformationStep[];
+  fieldname: string;  // will move to context?
+  config: ProcedureConfig;
+  output: ProcedureOutput | undefined;
   index: number;
   last?: boolean;
 }
@@ -50,22 +53,22 @@ export function TranslationProcedureCard(props: TranslationProcedureCardProps) {
           sx={{ flex: 1 }}
         >
         {
-          props.selections.map((selection, index) => {
+          props.config.selections.map((selection, index) => {
             const stepConfig = (
-              <SelectionConfig
+              <SelectionConfigComponent
                 fieldname={props.fieldname}
                 type={selection.type}
                 args={selection.args}
               />
             );
+            const output = props.output?.selections[index];
             return (
               <TranslationStep
                 fieldname={props.fieldname}
                 stepConfig={stepConfig}
-                output={selection.output}
-                error={selection.error}
+                output={output}
                 first={index === 0}
-                last={index === props.selections.length - 1}
+                last={index === props.config.selections.length - 1}
               />
             );
           })
@@ -82,23 +85,23 @@ export function TranslationProcedureCard(props: TranslationProcedureCardProps) {
           sx={{ flex: 1 }}
         >
         {
-          props.transformations.map((transformation, index) => {
+          props.config.transformations.map((transformation, index) => {
             const stepConfig = (
-              <TransformationConfig
+              <TransformationConfigComponent
                 fieldname={props.fieldname}
                 type={transformation.type}
                 args={transformation.args}
                 itemwise={transformation.itemwise}
               />
             );
+            const output = props.output?.transformations[index];
             return (
               <TranslationStep
                 fieldname={props.fieldname}
                 stepConfig={stepConfig}
-                output={transformation.output}
-                error={transformation.error}
+                output={output}
                 first={index === 0}
-                last={index === props.selections.length - 1}
+                last={index === props.config.selections.length - 1}
               />
             );
           })

@@ -14,23 +14,14 @@ import {
 } from "@mui/material";
 import { Refresh } from "@mui/icons-material";
 import { ConfigRevisionCard } from "./ConfigRevisionCard";
+import { ConfigMetadata } from "../types";
   
 interface ConfigHeaderProps {
   domain: string;
   // storage: string;
-  patternConfig: Config;
-  templateConfig: Config;
-  testConfig: Config;
-}
-
-// replace with the corresponding type
-interface Config {
-  revisions: {
-    id: number;
-    timestamp: Date;
-  }[];
-  revid: number | undefined
-  changed: boolean;
+  patternConfig: ConfigMetadata;
+  templateConfig: ConfigMetadata;
+  testConfig: ConfigMetadata;
 }
 
 export function ConfigHeader(props: ConfigHeaderProps) {

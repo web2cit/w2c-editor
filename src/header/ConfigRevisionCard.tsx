@@ -10,15 +10,11 @@ import {
   MenuItem,
   Select
 } from "@mui/material";
-import { Save } from "@mui/icons-material"
+import { Save } from "@mui/icons-material";
+import { ConfigMetadata } from "../types";
   
-interface ConfigRevisionCardProps {
+interface ConfigRevisionCardProps extends ConfigMetadata {
   type: string;
-  revisions: {
-    id: number;
-  }[];
-  revid: number | undefined;
-  changed: boolean;
 }
 
 export function ConfigRevisionCard(props: ConfigRevisionCardProps) {

@@ -1,22 +1,25 @@
-import { Button, Card, CardContent, Chip, Tooltip } from "@mui/material";
+import { Button, Card, CardContent, Skeleton } from "@mui/material";
 import { SxProps } from "@mui/system";
 import React from "react";
 import FieldOutput from "./FieldOutput";
-import { OutputValue } from "../types";
+import { 
+  TestFieldConfig,
+  TestFieldOutput
+} from "../types";
 import { useTranslation } from 'react-i18next';
 import { ScoreComponent } from "../ScoreChip";
 
-interface TestFieldOutputComponentProps {
-  values: OutputValue[] | undefined;
+interface TestFieldComponentProps {
   fieldname: string;
-  score: number | undefined;
+  config: TestFieldConfig;
+  output: TestFieldOutput | undefined;
   // consider pulling these from a configuration file based on the fieldname
   mandatory: boolean; // mandatory fields won't accept an empty output
   array: boolean;
   sx: SxProps;
 }
 
-function TestFieldOutputComponent(props: TestFieldOutputComponentProps) {
+function TestFieldComponent(props: TestFieldComponentProps) {
   const { t } = useTranslation();
   return (
     <Card
@@ -32,14 +35,14 @@ function TestFieldOutputComponent(props: TestFieldOutputComponentProps) {
         }}
       >
       {
-        props.values === undefined ?
+        props.config.goal === undefined ?
         <Button variant="contained">
         {
           t("test-field-output.add-goal")
         }
         </Button> :
         <FieldOutput
-          values={props.values}
+          values={props.config.goal}
           fieldname={props.fieldname}
           editable={true}
           minLength={props.mandatory ? 1 : 0}
@@ -48,12 +51,16 @@ function TestFieldOutputComponent(props: TestFieldOutputComponentProps) {
       }
       </CardContent>
       <CardContent>
+      {
+        props.output === undefined ?
+        <Skeleton variant="circular" animation="wave" /> :
         <ScoreComponent
-          score={props.score}
+          score={props.output.score}
         />
+      }
       </CardContent>
     </Card>
   )
 }
 
-export default TestFieldOutputComponent;
+export default TestFieldComponent;

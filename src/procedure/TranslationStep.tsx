@@ -7,6 +7,7 @@ import {
   Divider,
   IconButton,
   Paper,
+  Skeleton,
   Tooltip
 } from "@mui/material";
 import {
@@ -16,13 +17,13 @@ import React, { ReactNode } from "react";
 import { useTranslation } from 'react-i18next';
 import { styled } from '@mui/material/styles';
 import ListItemActions from '../ListItemActions';
+import { StepOutput } from "../types";
 
 // reuse from types?
 interface TranslationStepComponentProps {
   fieldname: string;
   stepConfig: ReactNode;
-  output: string[];
-  error?: Error;
+  output: StepOutput | undefined;
   first?: boolean;
   last?: boolean;
 }
@@ -63,7 +64,10 @@ function TranslationStepComponent(props: TranslationStepComponentProps) {
               }}
               component="ul"
             >
-              {props.output.map((value) => {
+            {
+              props.output === undefined ?
+              <Skeleton variant="rectangular" animation="wave" /> :
+              props.output.values.map((value) => {
                 return (
                   <ListItem>
                     <Chip
@@ -71,7 +75,8 @@ function TranslationStepComponent(props: TranslationStepComponentProps) {
                     />
                   </ListItem>
                 );
-              })}
+              })
+            }
             </Paper>
       </Collapse>
       </CardContent>

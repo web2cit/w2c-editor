@@ -1,21 +1,26 @@
-import { Box, Button, Card, CardContent, Checkbox, FormControlLabel, IconButton, Stack, Tooltip } from "@mui/material";
-import { Delete, Help } from '@mui/icons-material';
+import { Button, Card, CardContent, Checkbox, FormControlLabel, Stack, Tooltip } from "@mui/material";
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import TemplateFieldOutput from './TemplateFieldOutput';
-import TestFieldOutput from './TestFieldOutput';
-import { TranslationProcedure } from '../types';
+import {
+  TemplateFieldConfig,
+  TemplateFieldOutput
+} from '../types';
 import { camelToKebabCase } from '../utils';
 import { TranslationProcedureCard } from '../procedure/TranslationProcedure';
 
 interface TemplateFieldComponentProps {
-  fieldname: string;  // should be controlled?
-  required: boolean;
-  procedures: TranslationProcedure[]
+  config: TemplateFieldConfig;
+  output: TemplateFieldOutput | undefined;
+  editable?: boolean;
 }
 
 export function TemplateFieldComponent(props: TemplateFieldComponentProps) {
   const { t } = useTranslation();
+  props = {
+    editable: true,
+    ...props
+  }
+
   const mandatory = false;
   return (
     <Card>
@@ -29,7 +34,7 @@ export function TemplateFieldComponent(props: TemplateFieldComponentProps) {
                   'template-field.tooltip.mandatory',
                   { 
                     fieldname: t(
-                      'translation-field.name.' + camelToKebabCase(props.fieldname)
+                      'translation-field.name.' + camelToKebabCase(props.config.name)
                     )
                   }
                 ) :
@@ -37,8 +42,8 @@ export function TemplateFieldComponent(props: TemplateFieldComponentProps) {
               }
             >
               <Checkbox
-                checked={mandatory || props.required}
-                disabled={mandatory}
+                checked={mandatory || props.config.required}
+                disabled={mandatory || !props.editable}
               />
             </Tooltip>
           }
@@ -46,13 +51,13 @@ export function TemplateFieldComponent(props: TemplateFieldComponentProps) {
         />
         <Stack spacing={1}>
         {
-          props.procedures.map((procedure, index) => (
+          props.config.procedures.map((procedure, index) => (
             <TranslationProcedureCard
-              fieldname={props.fieldname}
-              selections={procedure.selections}
-              transformations={procedure.transformations}
+              fieldname={props.config.name}  // will move to context?
+              config={procedure}
+              output={props.output?.procedures[index]}
               index={index}
-              last={index === props.procedures.length - 1}
+              last={index === props.config.procedures.length - 1}
             />
           ))
         }
