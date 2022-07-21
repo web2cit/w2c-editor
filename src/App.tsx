@@ -19,33 +19,35 @@ interface AppProps {
   fallbackTemplate: TemplateConfig | undefined,
 }
 
-function App() {
-  // because we don't want the domain object to be reinstantiated every time
-  // the component it belongs to re-renders, consider moving everything else to
-  // a subcomponent, and... passing the domain object as prop
-  
-  // NOTE: or maybe better, have the top-most component ready to generate the
-  // data model in at least three different ways:
-  // * using the web2cit library
-  // * fetching data from the translation server
-  // * fething and sending data to the translation server
-  // hence, the second component in the hierarchy, gets the data model and
-  // renders it. this second component should keep config values in local state
-  // and pass them back to the top-level component when new outputs are needed
-  // in some cases, the top-level component wont' be prepared to generate new
-  // outputs, in which case it will pass an incomplete data model as prop to the
-  // subcomponent, which will render partially (no sorting, no outputs)
-  // sorting into patterns should be part of the props passed to the subcomponent
-  // the subcomponent should known if it is to be editable or not
+// We may have different top-level "apps", depending on how we generate the
+// data model passed to the second-level component:
+// * using the web2cit library
+// * fetching data from the translation server (read only)
+// * fething and sending data to the translation server
 
+// do we want this top-level component to be a class component? this way we
+// could have it follow an interface and make sure all methods/functions are
+// implemented
+function App() {
   // what the refresh button in the header does depends on the mode
   // * the mode with the w2c library reloads the configuration files from Meta
   // * the mode simply showing the server results reloads the server response
 
-  // the subcomponent should then be able to be rendered manually, in a way independent
-  // of how the data model was generated
+  handleRefresh() {
+    // fetch configuration revisions again
+    // what should we do if there is a new revision?
+    // we should consider whether the user has made changes
+    // and maybe ask them whether we should overwrite them
+    // update the patterns/templates/tests props accordingly
+    // maybe also update pathToPattern and outputsByTarget
+  }
 
+  // should the domain object be part of the top-level component's state?
   const [ domain, setDomain ] = useState<Domain>();
+
+  // should the props passed to the subcomponent be part of the top-level
+  // component's state? if not, what would trigger re-rendering of the sub-
+  // component?
 
   // TODO: persist some of the state to localstorage:
   // * the json representation of the config values
@@ -170,3 +172,103 @@ function App() {
 }
 
 export default App;
+
+function SubComponent (props: {
+  // whether we should provide options to edit the configuration files
+  // or (false) just offer a link to modify them externally
+  editable: boolean
+
+  //
+  domain: // domain name
+
+  // the problem with keeping a local state with configuration values and only
+  // submitting them to the core when updates are needed, is that either we have
+  // to make our own validation of values, or we may find out late that they
+  // were wrong...
+
+  // also, step arguments may have errors too, which we may not find out
+  // until the core has been involved...
+
+  // we may include pattern sorting inside these config values
+  // or pass a separate pathToPattern map
+  patterns:
+  templates:
+  tests:  // or targets including test
+
+  //
+  outputsByTarget  
+
+  // instructs the core at the top-level app that a specific config revision
+  // wants to be loaded
+  onPatternsRevidChange
+  onTemplatesRevidChange
+  onTestsRevidChange
+
+  // on refresh
+  onRefresh: // action triggered when the refresh button at the top is pressed
+  // consider having separate buttons per config file
+  // do we need extra refresh buttons? for example next to each target?
+
+  // these functions lead to corresponding prop updates, and may return errors
+  // they may have a parameter to not automatically update outputs
+  // or to limit update to a single target
+  // and we need independent functions to refresh sorting/outputs
+  // Note that having so many of these functions imply reimplementing all of
+  // them on each top-level component. Makes sense?
+  onPatternAdd
+  onPatternRemove
+  onPatternMove
+  onPatternUpdate
+
+  onTemplateAdd:
+  onTemplateRemove:
+  onTemplateMove:
+  onTemplateUpdate:
+
+  onTestAdd
+  onTestRemove
+  onTestMove
+  onTestUpdate
+
+  //
+  refreshSorting: (
+    patterns: PatternConfig[];
+    paths: string[];    
+  ): void;
+  refreshOutput: 
+
+
+}) {
+
+}
+
+// open questions
+// local state for config values yes or not?
+// maybe yes, but after validation from the core
+// or maybe yes at the top-level "app"
+// 
+
+
+
+
+/// OLD NOTES
+
+  // NO: because we don't want the domain object to be reinstantiated every time
+  // the component it belongs to re-renders, consider moving everything else to
+  // a subcomponent, and... passing the domain object as prop
+  
+  // hence, the second component in the hierarchy, gets the data model and
+  // renders it.
+  
+  // NO: this second component should keep config values in local state
+  // and pass them back to the top-level component when new outputs are needed
+
+  // in some cases, the top-level component wont' be prepared to generate new
+  // outputs, in which case it will pass an incomplete data model as prop to the
+  // subcomponent, which will render partially (no sorting, no outputs)
+  // sorting into patterns should be part of the props passed to the subcomponent
+  // the subcomponent should known if it is to be editable or not
+
+  // the subcomponent should then be able to be rendered manually, in a way independent
+  // of how the data model was generated
+
