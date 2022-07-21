@@ -22,7 +22,29 @@ interface AppProps {
 function App() {
   // because we don't want the domain object to be reinstantiated every time
   // the component it belongs to re-renders, consider moving everything else to
-  // a subcomponent, and passing the domain object as prop
+  // a subcomponent, and... passing the domain object as prop
+  
+  // NOTE: or maybe better, have the top-most component ready to generate the
+  // data model in at least three different ways:
+  // * using the web2cit library
+  // * fetching data from the translation server
+  // * fething and sending data to the translation server
+  // hence, the second component in the hierarchy, gets the data model and
+  // renders it. this second component should keep config values in local state
+  // and pass them back to the top-level component when new outputs are needed
+  // in some cases, the top-level component wont' be prepared to generate new
+  // outputs, in which case it will pass an incomplete data model as prop to the
+  // subcomponent, which will render partially (no sorting, no outputs)
+  // sorting into patterns should be part of the props passed to the subcomponent
+  // the subcomponent should known if it is to be editable or not
+
+  // what the refresh button in the header does depends on the mode
+  // * the mode with the w2c library reloads the configuration files from Meta
+  // * the mode simply showing the server results reloads the server response
+
+  // the subcomponent should then be able to be rendered manually, in a way independent
+  // of how the data model was generated
+
   const [ domain, setDomain ] = useState<Domain>();
 
   // TODO: persist some of the state to localstorage:
@@ -30,6 +52,7 @@ function App() {
   // * ...?
 
   // list of config revisions available
+
   const [ patternConfigRevisions, setPatternConfigRevisions ] = useState();
   const [ templateConfigRevisions, setTemplateConfigRevisions ] = useState();
   const [ testConfigRevisions, setTestConfigRevisions ] = useState();
@@ -129,8 +152,9 @@ function App() {
       selectedTarget ?
       <OverviewView
         // an array of patterns
-        // an array of templates, including the pattern to which each belongs
-        // an array of targets, including the pattern to wich each belongs
+        // an array of templates
+        // an array of targets (template + test paths)
+        // pathToPattern mapping (treat separately, may not be available)
         // an array of target results, use this to sort targets into templates
       /> :
       <TargetView
