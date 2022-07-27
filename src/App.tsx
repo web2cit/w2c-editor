@@ -19,15 +19,6 @@ interface AppProps {
   fallbackTemplate: TemplateConfig | undefined,
 }
 
-// We may have different top-level "apps", depending on how we generate the
-// data model passed to the second-level component:
-// * using the web2cit library
-// * fetching data from the translation server (read only)
-// * fething and sending data to the translation server
-
-// do we want this top-level component to be a class component? this way we
-// could have it follow an interface and make sure all methods/functions are
-// implemented
 function App() {
   // what the refresh button in the header does depends on the mode
   // * the mode with the w2c library reloads the configuration files from Meta
@@ -215,10 +206,13 @@ function SubComponent (props: {
   // and we need independent functions to refresh sorting/outputs
   // Note that having so many of these functions imply reimplementing all of
   // them on each top-level component. Makes sense?
-  onPatternAdd
-  onPatternRemove
-  onPatternMove
-  onPatternUpdate
+
+  // definitely we should make all of these dispatch functions, independently
+  // of whether we use Redux or hooks
+  onPatternAdd  // pattern/add
+  onPatternRemove // pattern/remove
+  onPatternMove  // pattern/move
+  onPatternUpdate  // pattern/update
 
   onTemplateAdd:
   onTemplateRemove:
@@ -247,6 +241,14 @@ function SubComponent (props: {
 // maybe yes, but after validation from the core
 // or maybe yes at the top-level "app"
 // 
+
+// global state
+// patterns
+// templates
+// tests
+// current revids
+// pathsToPatterns
+// outputsByTarget
 
 
 
