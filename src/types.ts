@@ -14,14 +14,20 @@ export interface FieldOutputValue {
   valid: boolean;
 }
 
-export type Score = number | null;  // we need undefined for pending output
-export type TemplatePath = string | undefined;
+// export type Score = number | null;  // we need undefined for pending output
+export type TemplatePath = string | null;
 
 //
+export interface Target {
+  path: string;
+  pattern: string | null;
+  results: TargetResult[];  // priority order
+  preferredResult: TemplatePath | undefined;  // needed?
+}
 
 export interface TargetResult {
   template: TemplatePath;
-  preferred: boolean;  // consider removing
+  // preferred: boolean;  // consider removing
   output: (
     TargetOutput | 
     null |  // no output will be returned using this (?) template
@@ -32,13 +38,13 @@ export interface TargetOutput {
   fields: TargetFieldOutput[];
   // do we need these two or can we get them on the fly?
   applicable: boolean;
-  score: Score;
+  score: number | null;
 }
 
 export interface TargetFieldOutput {
   name: string;
-  template: TemplateFieldOutput;
-  test: TestFieldOutput;
+  template?: TemplateFieldOutput;
+  test?: TestFieldOutput;
 }
 
 //
@@ -110,5 +116,5 @@ export interface TestFieldConfig {
 
 export interface TestFieldOutput {
   name: string;
-  score: Score;
+  score: number;
 }
