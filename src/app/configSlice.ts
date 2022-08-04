@@ -1,4 +1,5 @@
-import { Draft, EntityId, EntityState, PayloadAction, SliceCaseReducers } from '@reduxjs/toolkit'
+import { Draft, EntityId, EntityState, PayloadAction, SliceCaseReducers, ThunkAction, AnyAction } from '@reduxjs/toolkit'
+import { Wrapper } from '../api/wrapper';
 
 export interface ConfigState<T> {
   data: ConfigDataState<T>
@@ -35,6 +36,10 @@ export interface ConfigSliceReducers<T> extends SliceCaseReducers<ConfigState<T>
     revid: number | null;  // may be null if we are pulling draft config from local storage
     values: T[];
   }>) => void;
+  // todo: I'm not sure if it's OK to have a separate reducer for this,
+  // because it implies dispatching separate actions
+  // we should many reducers responding to the same action
+  configChanged: (state: Draft<ConfigState<T>>) => void;
 }
 
 // based on entity adapter CRUD functions
@@ -53,6 +58,40 @@ export function moveHelper<T>(
     state.ids.splice(index, 0, id);
   }  
 }
+
+// selectors
+// may be undefined if not fetched yet
+export type ConfigRevisionsSelector<State> = (state: State) => RevisionMetadata[] | undefined;
+
+// todo: maybe explain what the function type is and what ConfigType and State are
+export type AddConfigValueThunkActionCreator<State, ConfigType> = (value: ConfigType) => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  AnyAction
+>
+
+export type RemoveConfigValueThunkActionCreator<State> = (id: EntityId) => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  AnyAction
+>
+
+export type UpdateConfigValueThunkActionCreator<State, ConfigType> = (id: EntityId, value: ConfigType) => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  AnyAction
+>
+
+export type MoveConfigValueThunkActionCreator<State> = (id: EntityId, index: number) => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  AnyAction
+>
+
 
 // import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 // import { PatternConfig } from '../types'

@@ -2,7 +2,7 @@
 
 import { Wrapper } from "./wrapper";
 import { Domain } from "web2cit";
-import { TargetOutput, TargetResult, TargetFieldOutput, FieldOutputValue, TemplateFieldOutput, Target } from "../types";
+import { TargetOutput, TargetResult, TargetFieldOutput, FieldOutputValue, TemplateFieldOutput, Target, PatternConfig } from "../types";
 import { stringify } from "querystring";
 
 export class LocalWrapper extends Wrapper {
@@ -11,6 +11,12 @@ export class LocalWrapper extends Wrapper {
   setDomain(name: string): string {
     this.domain = new Domain(name);
     return this.domain.domain;
+  }
+
+  addPattern(value: PatternConfig) {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    }
   }
 
   getTargets(): Target[] {
@@ -175,5 +181,12 @@ export class LocalWrapper extends Wrapper {
     });
 
     return results;
+  }
+}
+
+class InitializationError extends Error {
+  constructor() {
+    super("Wrapper's Domain object has not been initialized yet");
+    this.name = "InitializationError";
   }
 }

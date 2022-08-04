@@ -1,10 +1,19 @@
-import { AnyAction, createAsyncThunk, createEntityAdapter, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createAsyncThunk, createEntityAdapter, createSlice, EntityId, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { PatternConfig } from '../types'
 import type { RootState } from './store'
 import { Wrapper } from '../wrapper/Wrapper';
 import { ThunkAction } from 'redux-thunk'
 import { Root } from 'react-dom/client';
-import { ConfigState, ConfigSliceReducers, moveHelper } from "./configSlice";
+import { 
+  ConfigState,
+  ConfigSliceReducers,
+  moveHelper,
+  AddConfigValueThunkActionCreator,
+  RemoveConfigValueThunkActionCreator,
+  UpdateConfigValueThunkActionCreator,
+  MoveConfigValueThunkActionCreator,
+  ConfigRevisionsSelector
+} from "./configSlice";
 import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from "./targetsSlice";
 import { batch } from "react-redux";
 
@@ -69,6 +78,11 @@ const patternsReducers: ConfigSliceReducers<PatternConfig> = {
     state.metadata.revid = revid;
     state.data.status = 'loaded'
     patternsAdapter.setAll(state.data, values);    
+  },
+  configChanged: (state) => {
+    // what should happen if status is "loading"?
+    state.data.status = 'draft';
+    state.metadata.revid = null;
   }
 }
 
@@ -103,15 +117,64 @@ export const {
   selectById: selectPatternByPath,
 } = patternsAdapter.getSelectors<RootState>(state => state.patterns.data);
 
+export const selectPatternRevisions: ConfigRevisionsSelector<RootState> = (state) {
+  return state.patterns.metadata.revisions;
+}
+
 // actions
 export const {
   add: patternAdded,
   remove: patternRemoved,
   move: patternMoved,
-  update: patternUpdated
+  update: patternUpdated,
+  configChanged
 } = patternsSlice.actions
 
+export const addPattern: AddConfigValueThunkActionCreator<RootState, PatternConfig> = function (value) {
+  return async function addPatternThunk (dispatch, _, wrapper) {
+    await wrapper.addPattern(value);
+    // new template means new path
+    // trigger targets refresh
+    // and wipe translation outputs (ideally by pattern)
+    batch(() => {
+      // fixme: how do we prevent dispatching multiple actions?
+      dispatch(patternAdded({ value }));
+      dispatch(configChanged());
+      // maybe move these two together out to the targets slice?
+      // or even the three
+      dispatch(refreshTargets());
+      dispatch(allTargetOutputsExpired());
+    });
 
+    // and ask for outputs recalculation
+    // maybe just for the current selected target
+    // maybe updating for current selected target should be automatic in the targets slice
+    // i.e., do not update globally if target selected
+    // maybe yes respect defined outputs
+    dispatch(updateAllTargetOutputs());
+    
+    // something that the component calling the action may be interested in
+    return;
+  }
+}
+
+export const removePattern: RemoveConfigValueThunkActionCreator<RootState> = function(id) {
+  return async function removePatternThunk (dispatch, _, wrapper) {
+    // fixme: as string...
+    await wrapper.removePattern(id as string);
+    batch(() => {
+      dispatch(patternRemoved({ index: 1 }));
+      dispatch(configChanged());
+      dispatch(refreshTargets());
+      dispatch(allTargetOutputsExpired());
+    });
+    dispatch(updateAllTargetOutputs());
+    return;
+  }
+}
+
+export const movePattern;
+export const updatePattern;
 
 // // todo: we don't need to handle loading and rejected states in the global state
 // // we can just leave this to the component calling the async action
@@ -143,54 +206,6 @@ export const {
 //   }
 // );
 
-
-// implentation details depend on the config type
-// but the shape may be imported from config slice
-// thunk action creator
-export function addPattern (value: PatternConfig): ThunkAction<
-  void,  // have the thunk return a promise so the component dispatching it can know what happened
-  RootState,
-  Wrapper,
-  AnyAction  // what actions can be dispatched from the thunk?
-> {
-  return async function addPatternThunk (dispatch, _, wrapper) {
-    await wrapper.addPattern(value);
-    // new template means new path
-    // trigger targets refresh
-    // and wipe translation outputs (ideally by pattern)
-    batch(() => {
-      // maybe move these two together out to the targets slice?
-      // or even the three
-      dispatch(refreshTargets());
-      dispatch(allTargetOutputsExpired());
-    });
-
-    // and ask for outputs recalculation
-    // maybe just for the current selected target
-    // maybe updating for current selected target should be automatic in the targets slice
-    // i.e., do not update globally if target selected
-    // maybe yes respect defined outputs
-    dispatch(updateAllTargetOutputs());
-    
-    // something that the component calling the action may be interested in
-    return;
-  }
-}
-
-const thunkRemove = (path: string): ThunkAction<
-  void,
-  RootState,
-  Wrapper,
-  AnyAction
-> {
-  return async (dispatch, getState, wrapper) {
-    await wrapper.removePattern(path);
-    dispatch(patternsSlice.actions.remove())
-  }
-}
-  
-
-
 const fetchRevisions = createAsyncThunk('patterns/revisions/fetch') {
   // ask the wrapper to fetch patterns config revisions
 
@@ -201,15 +216,6 @@ const fetchRevisions = createAsyncThunk('patterns/revisions/fetch') {
   // dispatch revisionLoaded action
 }
 
-// Other code such as selectors can use the imported `RootState` type
-export const selectCount = (state: RootState) => state.counter.value
+const loadRevision = createAsyncThunk('patterns/revisions/load') {}
 
-export default counterSlice.reducer
-
-// todo: with this approach we will have two sources of truth: the wrapper
-// and the state
-// isn't this what happens anyway when we fetch posts from a remote server
-// but still keep them locally?
-
-
-// todo: what is the right place for config metadata? here? or on a separate file?
+export default patternsSlice.reducer

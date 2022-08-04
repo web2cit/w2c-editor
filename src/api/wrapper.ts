@@ -1,6 +1,7 @@
 // an abstract class defining what wrappers should look like
 
 import { Target, TargetResult } from "../types"
+import { PatternConfig } from "../types"
 
 // We may have different wrappers depending on how we generate the
 // data model
@@ -18,10 +19,10 @@ export abstract class Wrapper {
 
   // abstract loadConfigRevId(config: string, revid: number): {}
 
-  // abstract addPattern(pattern: string, label?: string): void;
-  // abstract removePattern(pattern: string): void;
-  // abstract movePattern(): void;
-  // abstract updatePattern(): void;
+  abstract addPattern(value: PatternConfig): void;
+  abstract removePattern(id: string): void;
+  abstract movePattern(id: string, index: number): void;
+  abstract updatePattern(id: string, value: PatternConfig): void;
 
   // abstract addTemplate
   // abstract removeTemplate

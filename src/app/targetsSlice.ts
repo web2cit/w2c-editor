@@ -104,7 +104,13 @@ export const {
 
 // actions
 
-const { targetsRefreshed, targetOutputsUpdatedByPath } = targetsSlice.actions;
+const {
+  targetsRefreshed,
+  targetOutputsUpdatedByPath,
+} = targetsSlice.actions;
+export const {
+  allTargetOutputsExpired
+} = targetsSlice.actions;
 
 // Initially, I wanted to have how paths are sorted into patterns in the state
 // because I thought I couldn't have access to the w2c wrapper from the
@@ -137,19 +143,20 @@ export function updateAllTargetOutputs(): ThunkAction<
   Wrapper,
   AnyAction
 > {
-return async function updateAllTargetOutputsThunk(dispatch, getState, wrapper) {
-  // get target paths from the state
-  const paths = selectPaths(getState());
-  
-  // make target outputs undefined
-  // or ignore targets whose outputs object is defined already
+  return async function updateAllTargetOutputsThunk(dispatch, getState, wrapper) {
+    // get target paths from the state
+    const paths = selectPaths(getState());
+    
+    // make target outputs undefined
+    // or ignore targets whose outputs object is defined already
 
-  // iterate through paths and request translation
-  // call dispatch one by one, so we results are shown gradually
-  // we may give templates path to try, or just pattern (so it does not calculate again)
-  paths.forEach((path) => {
-    dispatch(updateTargetOutputsByPath(path));
-  });
+    // iterate through paths and request translation
+    // call dispatch one by one, so we results are shown gradually
+    // we may give templates path to try, or just pattern (so it does not calculate again)
+    paths.forEach((path) => {
+      dispatch(updateTargetOutputsByPath(path));
+    });
+  }
 }
 
 // this one could be made via createAsyncThunk, because we could benefit
@@ -170,4 +177,6 @@ export function updateTargetOutputsByPath(path: string): ThunkAction<
     const results = await wrapper.translate(path);
     dispatch(targetOutputsUpdatedByPath({ path, results }));
   }
-}
+};
+
+export default targetsSlice.reducer;
