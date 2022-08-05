@@ -13,10 +13,64 @@ export class LocalWrapper extends Wrapper {
     return this.domain.domain;
   }
 
-  addPattern(value: PatternConfig) {
+  addPattern(value: PatternConfig, index?: number) {
     if (this.domain === undefined) {
       throw new InitializationError();
+    };
+    const { pattern, label } = value;
+    // todo: we shouldn't check if pattern expression is undefined/null
+    // if we create specific types for catch-all patterns/fallback templates
+    if (pattern === undefined) {
+      throw new TypeError(
+        "Invalid pattern expression"
+      );
     }
+    try {
+      // note that these w2c-core's domain configuration objects already set
+      // their currentRevid to undefined following one of these add/remove/move
+      // operations
+      // we are not reading this currentRevid. Hopefully, this won't mean they
+      // end up diverging
+      this.domain.patterns.add({
+        pattern,
+        label
+      }, index);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  removePattern(id: string) {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    // domain.patterns silently proceeds if no matching pattern found;
+    // we should do the same
+    this.domain.patterns.remove(id);
+  }
+
+  movePattern(id: string, index: number) {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    this.domain.patterns.move(id, index);
+  }
+
+  updatePattern(id: string, value: PatternConfig) {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    // updating config values is not natively supported in w2c-core's domain
+    // configuration objects
+    // todo: consider having w2c-core natively support updating config values
+    const index = this.domain.patterns.get().findIndex(
+      (pattern) => pattern.pattern === id
+    );
+    if (index > -1) {
+      this.domain.patterns.remove(id);
+      this.addPattern(value, index);
+    }
+    // what about returning a change object here?
   }
 
   getTargets(): Target[] {

@@ -1,5 +1,6 @@
 import { Draft, EntityId, EntityState, PayloadAction, SliceCaseReducers, ThunkAction, AnyAction } from '@reduxjs/toolkit'
 import { Wrapper } from '../api/wrapper';
+import { ConfigRevision } from '../types';
 
 export interface ConfigState<T> {
   data: ConfigDataState<T>
@@ -16,13 +17,8 @@ interface ConfigMetadataState {
   // todo: ok to have it here in metadata?
   revid: number | null;
   // list of available revisions, undefined if not fetched yet
-  revisions: RevisionMetadata[] | undefined;
+  revisions: ConfigRevision[] | undefined;
   status: 'idle' | 'loading' | 'loaded'
-}
-
-interface RevisionMetadata {
-  id: number;
-  timestamp: string;
 }
 
 export interface ConfigSliceReducers<T> extends SliceCaseReducers<ConfigState<T>> {
@@ -92,6 +88,12 @@ export type MoveConfigValueThunkActionCreator<State> = (id: EntityId, index: num
   AnyAction
 >
 
+export type FetchRevisionsThunkActionCreator<State> = () => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  AnyAction
+>
 
 // import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 // import { PatternConfig } from '../types'

@@ -4,7 +4,7 @@ export interface ConfigMetadata {
   changed: boolean;
 }
 
-interface ConfigRevision {
+export interface ConfigRevision {
   id: number;
   timestamp: Date;
 }
@@ -48,6 +48,8 @@ export interface TargetFieldOutput {
 }
 
 //
+// todo: consider having a separate type for catch-all pattern
+// todo: consider using null pattern for catch-all pattern
 export interface PatternConfig {
   pattern: string | undefined;
   label?: string;

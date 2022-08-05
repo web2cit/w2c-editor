@@ -1,7 +1,7 @@
 // an abstract class defining what wrappers should look like
 
 import { Target, TargetResult } from "../types"
-import { PatternConfig } from "../types"
+import { PatternConfig, ConfigRevision } from "../types"
 
 // We may have different wrappers depending on how we generate the
 // data model
@@ -15,9 +15,9 @@ export abstract class Wrapper {
   
   abstract setDomain(name: string): string;
 
-  // abstract fetchConfigRevisions(): {}
+  abstract fetchConfigRevisions(config: "patterns" | "templates" | "tests"): ConfigRevision[];
 
-  // abstract loadConfigRevId(config: string, revid: number): {}
+  abstract loadConfigRevId(config: string, revid: number): {}
 
   abstract addPattern(value: PatternConfig): void;
   abstract removePattern(id: string): void;
