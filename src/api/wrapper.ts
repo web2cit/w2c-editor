@@ -17,7 +17,7 @@ export abstract class Wrapper {
 
   abstract fetchConfigRevisions(config: "patterns" | "templates" | "tests"): ConfigRevision[];
 
-  abstract loadConfigRevId(config: string, revid: number): {}
+  abstract loadConfigRevision<ConfigType>(config: string, revid: number): ConfigType[];
 
   abstract addPattern(value: PatternConfig): void;
   abstract removePattern(id: string): void;

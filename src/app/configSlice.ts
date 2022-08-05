@@ -27,16 +27,18 @@ export interface ConfigSliceReducers<T> extends SliceCaseReducers<ConfigState<T>
   remove: (state: Draft<ConfigState<T>>, action: PayloadAction<{ index: number }>) => void;
   move: (state: Draft<ConfigState<T>>, action: PayloadAction<{ index: number, newIndex: number }>) => void;
   update: (state: Draft<ConfigState<T>>, action: PayloadAction<{ index: number, value: T }>) => void;
-  revisionsFetched: (state: Draft<ConfigState<T>>, action: PayloadAction<{ revisions: RevisionMetadata[] }>) => void;
-  revisionLoaded: (state: Draft<ConfigState<T>>, action: PayloadAction<{
-    revid: number | null;  // may be null if we are pulling draft config from local storage
-    values: T[];
-  }>) => void;
-  // todo: I'm not sure if it's OK to have a separate reducer for this,
-  // because it implies dispatching separate actions
-  // we should many reducers responding to the same action
-  configChanged: (state: Draft<ConfigState<T>>) => void;
+  // revisionsFetched: (state: Draft<ConfigState<T>>, action: PayloadAction<{ revisions: RevisionMetadata[] }>) => void;
+  // revisionLoaded: (state: Draft<ConfigState<T>>, action: PayloadAction<{
+  //   revid: number | null;  // may be null if we are pulling draft config from local storage
+  //   values: T[];
+  // }>) => void;
+  // // todo: I'm not sure if it's OK to have a separate reducer for this,
+  // // because it implies dispatching separate actions
+  // // we should many reducers responding to the same action
+  // configChanged: (state: Draft<ConfigState<T>>) => void;
 }
+
+// todo: extra reducers interface
 
 // based on entity adapter CRUD functions
 // https://redux-toolkit.js.org/api/createEntityAdapter#crud-functions
@@ -55,9 +57,16 @@ export function moveHelper<T>(
   }  
 }
 
+// todo: read https://redux.js.org/usage/structuring-reducers/splitting-reducer-logic
+// I will be using this as a helper function
+export function configChangedHelper(state: Draft<ConfigState<any>>): void {
+  state.data.status = "draft";
+  state.metadata.revid = null;
+}
+
 // selectors
 // may be undefined if not fetched yet
-export type ConfigRevisionsSelector<State> = (state: State) => RevisionMetadata[] | undefined;
+export type ConfigRevisionsSelector<State> = (state: State) => ConfigRevision[] | undefined;
 
 // todo: maybe explain what the function type is and what ConfigType and State are
 export type AddConfigValueThunkActionCreator<State, ConfigType> = (value: ConfigType) => ThunkAction<
@@ -94,6 +103,15 @@ export type FetchRevisionsThunkActionCreator<State> = () => ThunkAction<
   Wrapper,
   AnyAction
 >
+
+export type LoadRevisionThunkActionCreator<State> = (revid: number) => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  AnyAction
+>
+
+// todo: we may need an additional action creator type to restore draft revision
 
 // import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 // import { PatternConfig } from '../types'
