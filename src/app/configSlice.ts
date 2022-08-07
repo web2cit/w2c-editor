@@ -1,4 +1,4 @@
-import { Draft, EntityId, EntityState, PayloadAction, SliceCaseReducers, ThunkAction, AnyAction } from '@reduxjs/toolkit'
+import { Draft, EntityAdapter, EntityId, EntityState, PayloadAction, SliceCaseReducers, ThunkAction, AnyAction } from '@reduxjs/toolkit'
 import { Wrapper } from '../api/wrapper';
 import { ConfigRevision } from '../types';
 
@@ -23,10 +23,10 @@ interface ConfigMetadataState {
 
 export interface ConfigSliceReducers<T> extends SliceCaseReducers<ConfigState<T>> {
   add: (state: Draft<ConfigState<T>>, action: PayloadAction<{ value: T }>) => void;
-  // consider passing an id instead of an index in all action payloads below
-  remove: (state: Draft<ConfigState<T>>, action: PayloadAction<{ index: number }>) => void;
-  move: (state: Draft<ConfigState<T>>, action: PayloadAction<{ index: number, newIndex: number }>) => void;
-  update: (state: Draft<ConfigState<T>>, action: PayloadAction<{ index: number, value: T }>) => void;
+  remove: (state: Draft<ConfigState<T>>, action: PayloadAction<{ id: string }>) => void;
+  move: (state: Draft<ConfigState<T>>, action: PayloadAction<{ id: string, index: number }>) => void;
+  update: (state: Draft<ConfigState<T>>, action: PayloadAction<{ id: string, value: T }>) => void;
+
   // revisionsFetched: (state: Draft<ConfigState<T>>, action: PayloadAction<{ revisions: RevisionMetadata[] }>) => void;
   // revisionLoaded: (state: Draft<ConfigState<T>>, action: PayloadAction<{
   //   revid: number | null;  // may be null if we are pulling draft config from local storage
@@ -38,7 +38,67 @@ export interface ConfigSliceReducers<T> extends SliceCaseReducers<ConfigState<T>
   // configChanged: (state: Draft<ConfigState<T>>) => void;
 }
 
-// todo: extra reducers interface
+// extra reducers
+export function getFetchRevisionsReducers<ConfigType>() {
+  const fetchRevisionsPendingReducer = function (
+    state: ConfigState<ConfigType>
+  ) {
+    state.metadata.status = 'loading';
+  };
+  const fetchRevisionsFulfilledReducer = function (
+    state: ConfigState<ConfigType>,
+    action: PayloadAction<{ revisions: ConfigRevision[] }>
+  ) {
+    const { revisions } = action.payload;
+    state.metadata.status = 'loaded';
+    state.metadata.revisions = revisions;
+  };
+  const fetchRevisionsRejectedReducer = function (
+    state: ConfigState<ConfigType>
+  ) {
+    state.metadata.status = 'idle';
+  };
+  return {
+    fetchRevisionsPendingReducer,
+    fetchRevisionsFulfilledReducer,
+    fetchRevisionsRejectedReducer
+  }
+}
+
+export function getLoadRevisionReducers<ConfigType>(
+  adapter: EntityAdapter<ConfigType>
+) {
+  const loadRevisionPendingReducer = function (
+    state: ConfigState<ConfigType>
+  ) {
+    state.data.status = "loaded";
+  }
+
+  const loadRevisionFulfilledReducer = function (
+    state: ConfigState<ConfigType>,
+    action: PayloadAction<{
+      revid: number | null;  // may be null if we are pulling draft config from local storage
+      values: ConfigType[];
+    }>
+  ) {
+    const { revid, values } = action.payload;
+    state.metadata.revid = revid;
+    state.data.status = 'loaded'
+    adapter.setAll(state.data, values);
+  }
+
+  const loadRevisionRejectedReducer = function (
+    state: ConfigState<ConfigType>
+  ) {
+    //
+  }
+
+  return {
+    loadRevisionPendingReducer,
+    loadRevisionFulfilledReducer,
+    loadRevisionRejectedReducer
+  }
+}
 
 // based on entity adapter CRUD functions
 // https://redux-toolkit.js.org/api/createEntityAdapter#crud-functions
@@ -112,127 +172,3 @@ export type LoadRevisionThunkActionCreator<State> = (revid: number) => ThunkActi
 >
 
 // todo: we may need an additional action creator type to restore draft revision
-
-// import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-// import { PatternConfig } from '../types'
-// import type { RootState } from './store'
-// import { Wrapper } from '../wrapper/Wrapper';
-
-// // Define a type for the slice state
-// interface PatternsState {
-//   patterns: PatternConfig[];
-// }
-
-// // Define the initial state using that type
-// const initialState: PatternsState = {
-//   patterns: {
-
-//   };
-//   templates: {
-//     paths: [],
-//     entitites: {}
-//     revisions: {
-        
-//     }
-//   }
-//   tests:
-// }
-
-// export const configSlice = createSlice({
-//   name: 'config',
-//   // `createSlice` will infer the state type from the `initialState` argument
-//   initialState,
-//   reducers: {
-//     add: (state, action: PayloadAction<{ pattern: PatternConfig }>) => {
-      
-//     },
-//     remove: (state, action: PayloadAction<{ index: number }>) => {
-//       state.patterns.splice(action.payload.index, 1);
-//     },
-//     move: (
-//       state,
-//       action: PayloadAction<{ index: number; newIndex: number }>
-//     ) => {
-//       const { index, newIndex } = action.payload;
-//       const pattern = state.patterns.splice(index, 1)[0];
-//       if (pattern !== undefined) {
-//         state.patterns.splice(newIndex, 0, pattern);
-//       };
-//     },
-//     update: (
-//       state,
-//       action: PayloadAction<{ index: number; pattern: PatternConfig }>
-//     ) => {
-//       const { index, pattern } = action.payload;
-//       state.patterns[index] = pattern;
-//     }
-//   },
-//   // The `extraReducers` field lets the slice handle actions defined elsewhere,
-//   // including actions generated by createAsyncThunk or in other slices.
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(add.pending, (state) => {
-//         // state.status = 'loading';
-//       })
-//       .addCase(add.fulfilled, (state, action) => {
-//         // mutable updates inside createSlice are converted to immutable updates
-//         // by Immer
-
-//         // todo: how should we deal with fallback pattern
-//         state.patterns.push(action.payload.pattern);
-//       })
-//       .addCase(add.rejected, (state) => {
-//         // state.status = 'failed';
-//       });
-
-// })
-
-// // todo: we don't need to handle loading and rejected states in the global state
-// // we can just leave this to the component calling the async action
-// // hence, consider creating a thunk manually instead
-// export const add = createAsyncThunk<
-//   // Return type of the payload creator
-//   { pattern: PatternConfig },
-//   // First argument to the payload creator
-//   { pattern: PatternConfig },
-//   {
-//     // Optional fields for defining thunkApi field types
-//     extra: {
-//       wrapper: Wrapper
-//     }
-//   }
-// >('patterns/add', async ( { pattern }, thunkApi) => {
-//     await thunkApi.extra.wrapper.addPattern(pattern);
-    
-//     // about dispatching many actions in a row:
-//     // https://redux.js.org/style-guide/#avoid-dispatching-many-actions-sequentially
-//     // todo: is it ok to dispatch refresh sorting and outputs here?
-    
-//     // import actions from corresponding slice files
-//     thunkApi.dispatch(refresSort())
-//     // thunkApi.dispatch(refreshOutput())  // call from refreshSort...
-    
-//     // The value we return becomes the `fulfilled` action payload
-//     return { pattern };
-//   }
-// );
-
-
-
-// // Other code such as selectors can use the imported `RootState` type
-// export const selectCount = (state: RootState) => state.counter.value
-
-// export default counterSlice.reducer
-
-// // todo: with this approach we will have two sources of truth: the wrapper
-// // and the state
-// // isn't this what happens anyway when we fetch posts from a remote server
-// // but still keep them locally?
-
-
-// // todo: what is the right place for config metadata? here? or on a separate file?
-
-// // config files may be fetched and loaded in batch
-
-
-// // we don't want to update outputs each time; just once per batch

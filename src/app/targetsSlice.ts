@@ -137,6 +137,10 @@ export function refreshTargets(): ThunkAction<
   }
 }
 
+// todo: we may rename this as updateTargetOutputs and have it update either
+// all targets or the target selected only (if any)
+// alternatively, we may have a updateSelectedTargetOutputs method (or rename
+// the updateTargetOutputsByPath below)
 export function updateAllTargetOutputs(): ThunkAction<
   void,
   RootState,
@@ -154,7 +158,8 @@ export function updateAllTargetOutputs(): ThunkAction<
     // call dispatch one by one, so we results are shown gradually
     // we may give templates path to try, or just pattern (so it does not calculate again)
     paths.forEach((path) => {
-      dispatch(updateTargetOutputsByPath(path));
+      // fixme: as string...
+      dispatch(updateTargetOutputsByPath(path as string));
     });
   }
 }
