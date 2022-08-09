@@ -1,6 +1,13 @@
-import { Draft, EntityAdapter, EntityId, EntityState, PayloadAction, SliceCaseReducers, ThunkAction, AnyAction } from '@reduxjs/toolkit'
+import { Draft, EntityAdapter, EntityId, EntityState, PayloadAction, ThunkAction, AnyAction, ActionCreatorWithPayload } from '@reduxjs/toolkit'
+import { batch } from 'react-redux';
 import { Wrapper } from '../api/wrapper';
 import { ConfigRevision } from '../types';
+import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from "./targetsSlice";
+
+// todo: instead of having some abstract definitions here implemented in
+// separate config slices, we may have one single config slice, with actions
+// that take a config type parameter indicating what subslice should be
+// updated
 
 export interface ConfigState<T> {
   data: ConfigDataState<T>
@@ -21,21 +28,51 @@ interface ConfigMetadataState {
   status: 'idle' | 'loading' | 'loaded'
 }
 
-export interface ConfigSliceReducers<T> extends SliceCaseReducers<ConfigState<T>> {
-  add: (state: Draft<ConfigState<T>>, action: PayloadAction<{ value: T }>) => void;
-  remove: (state: Draft<ConfigState<T>>, action: PayloadAction<{ id: string }>) => void;
-  move: (state: Draft<ConfigState<T>>, action: PayloadAction<{ id: string, index: number }>) => void;
-  update: (state: Draft<ConfigState<T>>, action: PayloadAction<{ id: string, value: T }>) => void;
+export function getReducers<ConfigType>(adapter: EntityAdapter<ConfigType>) {
+  const add = function (
+    state: ConfigState<ConfigType>,
+    action: PayloadAction<{ value: ConfigType }>
+  ): void {
+    const { value } = action.payload;
+    adapter.addOne(state.data, value);
+    configChangedHelper(state);
+  };
+  
+  const remove = function (
+    state: ConfigState<ConfigType>,
+    action: PayloadAction<{ id: string }>
+  ): void {
+    const { id } = action.payload;
+    if (state.data.ids.includes(id)) {
+      adapter.removeOne(state.data, id);
+      configChangedHelper(state);
+    }
+  };
 
-  // revisionsFetched: (state: Draft<ConfigState<T>>, action: PayloadAction<{ revisions: RevisionMetadata[] }>) => void;
-  // revisionLoaded: (state: Draft<ConfigState<T>>, action: PayloadAction<{
-  //   revid: number | null;  // may be null if we are pulling draft config from local storage
-  //   values: T[];
-  // }>) => void;
-  // // todo: I'm not sure if it's OK to have a separate reducer for this,
-  // // because it implies dispatching separate actions
-  // // we should many reducers responding to the same action
-  // configChanged: (state: Draft<ConfigState<T>>) => void;
+  // moving makes no sense for the tests slice
+  const move = function (
+    state: ConfigState<ConfigType>,
+    action: PayloadAction<{ id: string, index: number }>
+  ): void {
+    const { id, index } = action.payload;
+    if (state.data.ids.includes(id)) {
+      moveHelper<ConfigType>(state.data, { id,  index });
+      configChangedHelper(state);
+    };
+  };
+  
+  const update = function (
+    state: ConfigState<ConfigType>,
+    action: PayloadAction<{ id: string, value: ConfigType }>
+  ): void {
+    const { id, value } = action.payload;
+    if (state.data.ids.includes(id)) {
+      adapter.updateOne(state.data, { id, changes: value });
+      configChangedHelper(state);
+    };
+  }
+
+  return { add, remove, move, update };
 }
 
 // extra reducers
@@ -128,35 +165,37 @@ export function configChangedHelper(state: Draft<ConfigState<any>>): void {
 // may be undefined if not fetched yet
 export type ConfigRevisionsSelector<State> = (state: State) => ConfigRevision[] | undefined;
 
+export function getThunkActionCreator<
+  State,
+  ActionCreator extends ActionCreatorWithPayload<any>
+>(
+  request: (wrapper: Wrapper, payload: ReturnType<ActionCreator>["payload"]) => Promise<void>,
+  action: ActionCreator
+): (payload: ReturnType<ActionCreator>["payload"]) => ThunkAction<
+  void,
+  State,
+  Wrapper,
+  // fixme
+  any
+> {
+  return function thunkActionCreator (payload) {
+    return async function thunkAction (dispatch, _, wrapper) {
+      await request(wrapper, payload);
+      batch(() => {
+        // https://redux.js.org/style-guide/#avoid-dispatching-many-actions-sequentially
+        dispatch(action(payload));
+        dispatch(refreshTargets());
+        dispatch(allTargetOutputsExpired());
+        dispatch(updateAllTargetOutputs());
+      });
+
+      // something that the component calling the action may be interested in
+      return;
+    }
+  }
+}
+
 // todo: maybe explain what the function type is and what ConfigType and State are
-export type AddConfigValueThunkActionCreator<State, ConfigType> = (value: ConfigType) => ThunkAction<
-  void,
-  State,
-  Wrapper,
-  AnyAction
->
-
-export type RemoveConfigValueThunkActionCreator<State> = (id: EntityId) => ThunkAction<
-  void,
-  State,
-  Wrapper,
-  AnyAction
->
-
-export type UpdateConfigValueThunkActionCreator<State, ConfigType> = (id: EntityId, value: ConfigType) => ThunkAction<
-  void,
-  State,
-  Wrapper,
-  AnyAction
->
-
-export type MoveConfigValueThunkActionCreator<State> = (id: EntityId, index: number) => ThunkAction<
-  void,
-  State,
-  Wrapper,
-  AnyAction
->
-
 export type FetchRevisionsThunkActionCreator<State> = () => ThunkAction<
   void,
   State,
