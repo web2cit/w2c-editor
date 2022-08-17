@@ -1,9 +1,12 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit';
+import domainReducer from './domainSlice';
 import patternsReducer from './patternsSlice';
-import { templatesReducer } from './templatesSlice';
-import { testsReducer } from './testsSlice';
+import templatesReducer from './templatesSlice';
+// import testsReducer from './testsSlice';
 import targetsReducer from './targetsSlice';
 import { TemplateConfig, TestConfig } from '../types';
+import { LocalWrapper } from '../api/localWrapper';
+import { Wrapper } from '../api/wrapper';
 
 // we may have config and output slices
 // config slice may be split into patterns, templates and tests slices
@@ -21,19 +24,20 @@ import { TemplateConfig, TestConfig } from '../types';
 // fetch config files
 // add config values
 // etc
-const wrapper = new Wrapper();
+const wrapper: Wrapper = new LocalWrapper();
 
 export const store = configureStore({
   reducer: {
+    domain: domainReducer,
     patterns: patternsReducer,
-    // templates: templatesReducer,
+    templates: templatesReducer,
     // tests: testsReducer,
     targets: targetsReducer
   },
   middleware: getDefaultMiddleware =>
   getDefaultMiddleware({
     thunk: {
-      extraArgument: { wrapper }
+      extraArgument: wrapper
     }
   })
 })

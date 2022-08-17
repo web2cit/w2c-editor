@@ -144,7 +144,7 @@ export const loadRevision: LoadRevisionThunkActionCreator<RootState> = (revid) =
       type: "patterns/loadRevision/pending"
     });
     try {
-      const patterns = await wrapper.loadConfigRevision("patterns", revid);
+      const patterns = await wrapper.loadPatternsRevision(revid);
       batch(() => {
         // todo: these actions ought to be typed
         dispatch({
