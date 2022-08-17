@@ -6,7 +6,7 @@ export interface ConfigMetadata {
 
 export interface ConfigRevision {
   id: number;
-  timestamp: Date;
+  timestamp: string;
 }
 
 export interface FieldOutputValue {
@@ -108,6 +108,7 @@ export interface StepOutput {
 
 //
 export interface TestConfig {
+  path: string;
   fields: TestFieldConfig[];
 }
 

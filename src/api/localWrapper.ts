@@ -2,8 +2,16 @@
 
 import { Wrapper } from "./wrapper";
 import { Domain } from "web2cit";
-import { TargetOutput, TargetResult, TargetFieldOutput, FieldOutputValue, TemplateFieldOutput, Target, PatternConfig } from "../types";
-import { stringify } from "querystring";
+import {
+  TargetOutput,
+  TargetResult,
+  Target,
+  PatternConfig,
+  TestConfig,
+  TemplateConfig
+} from "../types";
+import { FieldName } from "web2cit/dist/translationField";
+import { TemplateDefinition, TestDefinition } from "web2cit/dist/types";
 
 export class LocalWrapper extends Wrapper {
   domain: Domain | undefined;
@@ -11,6 +19,88 @@ export class LocalWrapper extends Wrapper {
   setDomain(name: string): string {
     this.domain = new Domain(name);
     return this.domain.domain;
+  }
+
+  // todo: consider supporting a fetchLatestRevision
+
+  // todo: consider changing name to something that distinguishes between
+  // fetching revision metadata and revision data
+  async fetchConfigRevisions(config: 'patterns' | 'templates' | 'tests') {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const configObj = this.domain[config];
+    const revisions = await configObj.getRevisionIds();
+    return revisions.map((revision) => ({
+      id: revision.revid,
+      timestamp: revision.timestamp
+    }));
+  }
+
+  // async loadConfigRevision<ConfigType extends PatternConfig | TemplateConfig | TestConfig>(
+  //   config: (
+  //     ConfigType extends PatternConfig ?
+  //     'patterns' :
+  //     ConfigType extends TemplateConfig ?
+  //     'templates' :
+  //     ConfigType extends TestConfig ?
+  //     'tests' : never
+  //   ),
+  //   revid: number
+  // ): Promise<ConfigType[]> {
+  //   if (this.domain === undefined) {
+  //     throw new InitializationError();
+  //   };
+  //   const configObj = this.domain[config];
+  //   const revision = await configObj.getRevision(revid);
+  //   if (revision === undefined) {
+  //     throw new UnknownRevidError(config, revid);
+  //   }
+  //   configObj.loadRevision(revision);
+  //   const values = configObj.get();
+  //   return values;
+  // }
+
+  async loadPatternsRevision(revid: number): Promise<PatternConfig[]> {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const revision = await this.domain.patterns.getRevision(revid);
+    if (revision === undefined) {
+      throw new UnknownRevidError("patterns", revid);
+    }
+    this.domain.patterns.loadRevision(revision);
+    const patterns = this.domain.patterns.toJSON();
+    return patterns;
+  }
+
+  async loadTemplatesRevision(revid: number): Promise<TemplateConfig[]> {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const revision = await this.domain.templates.getRevision(revid);
+    if (revision === undefined) {
+      throw new UnknownRevidError("templates", revid);
+    }
+    this.domain.templates.loadRevision(revision);
+    const templates = this.domain.templates.toJSON();
+    // core's TemplateDefinition differs from editor's TemplateConfig
+    return templates.map(coreTemplateToEditor);
+  }
+
+  async loadTestsRevision(revid: number): Promise<TestConfig[]> {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const revision = await this.domain.tests.getRevision(revid);
+    if (revision === undefined) {
+      throw new UnknownRevidError("tests", revid);
+    };
+    this.domain.tests.loadRevision(revision);
+    // todo: could something happen above such that nothing is loaded and
+    // we return the old config below?
+    const tests = this.domain.tests.toJSON();
+    return tests.map(coreTestToEditor);
   }
 
   addPattern(value: PatternConfig, index?: number) {
@@ -73,6 +163,43 @@ export class LocalWrapper extends Wrapper {
     // what about returning a change object here?
   }
 
+  addTemplate(value: TemplateConfig, index?: number): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const template = editorTemplateToCore(value);
+    this.domain.templates.add(template, index); 
+  };
+
+  removeTemplate(id: string): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    this.domain.templates.remove(id);
+  };
+
+  moveTemplate(id: string, index: number): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    this.domain.templates.move(id, index);
+  };
+
+  updateTemplate(id: string, value: TemplateConfig): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    // todo: have w2c-core natively support updating config values
+    const index = this.domain.templates.get().findIndex(
+      (template) => template.path === id
+    );
+    if (index > -1) {
+      this.domain.templates.remove(id);
+      this.addTemplate(value, index);
+    }
+    // what about returning a change object here?
+  };  
+
   getTargets(): Target[] {
     if (this.domain === undefined) {
       throw new Error();
@@ -122,7 +249,8 @@ export class LocalWrapper extends Wrapper {
     const outputs = await this.domain.translate(
       path,
       {
-        forceTemplatePaths: templates,
+        // fixme: as string[]...
+        forceTemplatePaths: templates as string[],
         onlyApplicable: false
       }
     );
@@ -238,9 +366,138 @@ export class LocalWrapper extends Wrapper {
   }
 }
 
+/**
+ * Converts a template definition from w2c-editor into w2c-core format.
+ * @param template - The template definition in w2c-editor
+ *  format.
+ * @returns The template definition in w2c-core format.
+ */
+function editorTemplateToCore(template: TemplateConfig): TemplateDefinition {
+  const { path, label, fields } = template;
+  if (path === undefined) {
+    throw new TypeError(
+      "Invalid template path"
+    );
+  }
+  const coreTemplate: TemplateDefinition = {
+    path,
+    label,
+    fields: fields.map((field) => ({
+      fieldname: field.name as FieldName,
+      procedures: field.procedures.map((procedure) => ({
+        selections: procedure.selections.map((selection) => ({
+          type: selection.type,
+          config: selection.args.map((arg) => arg.value).join(",")
+        })),
+        transformations: procedure.transformations.map((transformation) => ({
+          type: transformation.type,
+          itemwise: transformation.itemwise,
+          config: transformation.args.map((arg) => arg.value).join(",")
+        }))
+      })),
+      required: field.required        
+    }))
+  };
+  return coreTemplate;
+}
+
+/**
+ * Converts a template definition from w2c-core into w2c-editor format.
+ * @param template - The template definition in w2c-core
+ *  format.
+ * @returns The template definition in w2c-editor format.
+ */
+function coreTemplateToEditor(template: TemplateDefinition): TemplateConfig {
+  const { path, label, fields } = template;
+  const editorTemplate: TemplateConfig = {
+    path,
+    label,
+    fields: fields.map((field) => ({
+      name: field.fieldname,
+      required: field.required,
+      procedures: field.procedures.map((procedure) => ({
+        selections: procedure.selections.map((selection) => ({
+          type: selection.type,
+          args: selection.config.split(",").map((value) => ({
+            value
+          }))
+        })),
+        transformations: procedure.transformations.map((transformation) => ({
+          type: transformation.type,
+          itemwise: transformation.itemwise,
+          args: transformation.config.split(",").map((value) => ({
+            value
+          }))
+        }))
+      }))
+    }))
+  }
+  return editorTemplate;
+}
+
+/**
+ * Converts a test definition from w2c-editor into w2c-core format.
+ * @param test - The test definition in w2c-editor
+ *  format.
+ * @returns The test definition in w2c-core format.
+ */
+function editorTestToCore(test: TestConfig): TestDefinition {
+  const fields = test.fields.reduce(
+    (fields: TestDefinition["fields"], field) => {
+      if(field.goal !== undefined) {
+        // skip undefined-goal fields
+        fields.push({
+          fieldname: field.name as FieldName,
+          // todo: do we need to skip invalid goal values?
+          goal: field.goal.map((value) => value.value)
+        });
+      }
+      return fields;
+    }, [])
+  const coreTest: TestDefinition = {
+    path: test.path,
+    fields 
+  };
+  return coreTest;
+}
+
+/**
+ * Converts a test definition from w2c-core into w2c-editor format.
+ * @param test - The test definition in w2c-core
+ *  format.
+ * @returns The test definition in w2c-editor format.
+ */
+ function coreTestToEditor(test: TestDefinition): TestConfig {
+  const editorTest: TestConfig = {
+    path: test.path,
+    fields: test.fields.map((field) => ({
+      name: field.fieldname,
+      goal: field.goal.map((value) => ({
+        value,
+        // todo: does the core know about invalid test goals?
+        // or do they not pass validation?
+        valid: true
+      }))
+    }))
+  };
+  return editorTest;
+}
+
 class InitializationError extends Error {
   constructor() {
     super("Wrapper's Domain object has not been initialized yet");
     this.name = "InitializationError";
+  }
+}
+
+class UnknownRevidError extends Error {
+  constructor(
+    config: 'patterns' | 'templates' | 'tests',
+    revid: number
+  ) {
+    super(
+      `Unknown ${config} revid: ${revid}`
+    );
+    this.name = "UnknownRevidError";
   }
 }
