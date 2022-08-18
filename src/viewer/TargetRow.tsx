@@ -2,16 +2,48 @@ import React from "react";
 import { useTranslation } from 'react-i18next';
 import { Box, Card, CardActions, CardContent, IconButton, Typography } from "@mui/material";
 import { ScoreComponent } from "../ScoreChip";
+import { selectTargetByPath, selectTargetSelection } from "../app/targetsSlice";
+import { useAppSelector } from "../app/hooks";
   
 interface TargetRowProps {
   elevated: boolean;
   path: string;
-  score: number | undefined;
-  current: boolean;
+  // score: number | undefined;
+  // current: boolean;
 }
   
 export function TargetRow(props: TargetRowProps) {
   const { t } = useTranslation();
+
+  const target = useAppSelector(
+    (state) => selectTargetByPath(state, props.path)
+  );
+  const targetSelection = useAppSelector(selectTargetSelection);
+
+  if (target === undefined) {
+    // fixme: will this ever happen? find an alternative if yes
+    return (
+      <>
+      { `Error: Could not find target for path ${props.path} in app's state.` }
+      </>
+    )
+  }
+
+  const current = props.path === targetSelection;
+
+  // fixme?: nesting a target in a template occurs in the template component
+  // however, here we display the results corresponding to the preferred
+  // template. May these two sides of the coin diverge? Shall we pass target
+  // details from the template row component instead of pulling them from the
+  // state directly?
+  let result;
+  if ( target !== undefined && target.preferredResult !== undefined) {
+    result = target.results.find(
+      (result) => result.template === target.preferredResult
+    )
+  };
+
+  const score = result?.output?.score;
   
   return (
     <Card
@@ -21,7 +53,7 @@ export function TargetRow(props: TargetRowProps) {
       sx={{
         display: "flex",
         alignItems: "flex-start",
-        background: props.current ? "lightsteelblue" : undefined
+        background:current ? "lightsteelblue" : undefined
       }}
     >
       {/* <CardActions>
@@ -53,12 +85,12 @@ export function TargetRow(props: TargetRowProps) {
           >
             <Typography>
             {
-              props.path
+              target.path
             }
             </Typography>            
           </Box>
           <ScoreComponent
-            score={props.score}
+            score={score}
           />
           {/* <ListItemActionsComponent
             editable={true}

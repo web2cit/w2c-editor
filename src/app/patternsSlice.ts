@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PatternConfig } from '../types'
 import type { RootState } from './store'
 import { 
@@ -14,7 +14,10 @@ import {
 import { batch } from "react-redux";
 import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from "./targetsSlice";
 
-interface PatternsState extends ConfigState<PatternConfig> {}
+interface PatternsState extends ConfigState<PatternConfig> {
+  // todo: consider moving this to the domain slice
+  catchall?: PatternConfig;
+}
 
 const patternsAdapter = createEntityAdapter<PatternConfig>({
   selectId: pattern => pattern.pattern ?? ''
@@ -46,7 +49,16 @@ const {
 export const patternsSlice = createSlice({
   name: 'patterns',
   initialState,
-  reducers: getReducers(patternsAdapter),
+  reducers: {
+    ...getReducers(patternsAdapter),
+    catchallSet: (
+      state,
+      action: PayloadAction<{ pattern: PatternConfig }>
+    ) => {
+      const { pattern } = action.payload;
+      state.catchall = pattern;
+    }
+  },
   extraReducers: {
     'patterns/fetchRevisions/pending': fetchRevisionsPendingReducer,
     'patterns/fetchRevisions/fulfilled': fetchRevisionsFulfilledReducer,
@@ -60,12 +72,18 @@ export const patternsSlice = createSlice({
 // selectors
 export const {
   selectAll: selectAllPatterns,
-  selectById: selectPatternByPath,
+  selectById: selectPatternByExpression,
 } = patternsAdapter.getSelectors<RootState>(state => state.patterns.data);
 
 export const selectPatternRevisions: ConfigRevisionsSelector<RootState> = (state) => {
   return state.patterns.metadata.revisions;
 }
+
+export function selectCatchallPattern(
+  state: RootState
+): PatternConfig | undefined {
+  return state.patterns.catchall;
+};
 
 // action creators
 export const {
@@ -73,6 +91,7 @@ export const {
   remove: patternRemoved,
   move: patternMoved,
   update: patternUpdated,
+  catchallSet
 } = patternsSlice.actions
 
 // thunk action creators

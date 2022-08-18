@@ -5,15 +5,15 @@ export function camelToKebabCase(input: string): string {
   return output;
 }
 
-export function getPreferredResult(results: TargetResult[]): TargetResult {
+// export function getPreferredResult(results: TargetResult[]): TargetResult {
 
-}
+// }
 
 export function isResultApplicable(result: TargetResult): boolean | undefined {
   let applicable;
   const output = result.output;
   if (output !== undefined && output !== null) {
-    applicable = output.fields.every((field) => field.template.applicable);
+    applicable = output.fields.every((field) => field.template!.applicable);
   }
   return applicable;
 }
@@ -24,7 +24,7 @@ export function getResultScore(result: TargetResult): Score | undefined {
   if (output !== undefined && output !== null) {
     const scores: number[] = [];
     output.fields.forEach((field) => {
-      const score = field.test.score
+      const score = field.test!.score
       if (score !== null) {
         scores.push(score);
       }

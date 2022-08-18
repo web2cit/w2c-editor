@@ -18,6 +18,8 @@ type PatternValue = string | null;
 export interface TargetsState extends EntityState<Target> {
   // currently selected target
   selection: string | undefined;
+  // todo: consider having a current target property indicating the target
+  // currently shown by the browser
 };
 
 // we don't care about the order of the targets
@@ -76,10 +78,17 @@ const targetsSlice = createSlice({
       action: PayloadAction<{ path: string, results: TargetResult[] }>
     ) => {
       const { path, results } = action.payload;
+
+      // todo: consider passing this into the action (or removing the prop)
+      const preferredResult = results.find(
+        (result) => result.output?.applicable
+      )?.template;
+  
       const update: Update<Target> = {
         id: path,
         changes: {
-          results
+          results,
+          preferredResult
         }
       };
       targetsAdapter.updateOne(state, update);
@@ -97,6 +106,9 @@ export const {
 } = targetsAdapter.getSelectors<RootState>(state => state.targets);
 
 // other selectors
+export function selectTargetSelection(state: RootState): string | undefined {
+  return state.targets.selection;
+};
 // export const selectPostsByUser = createSelector(
 //   [selectAllPosts, (state, userId) => userId],
 //   (posts, userId) => posts.filter(post => post.user === userId)
@@ -179,7 +191,9 @@ export function updateTargetOutputsByPath(path: string): ThunkAction<
     // force the pattern group into the translate method so that it is not
     // calculated again
     
+    // todo: consider having wrapper's translate return the preferred result
     const results = await wrapper.translate(path);
+    
     dispatch(targetOutputsUpdatedByPath({ path, results }));
   }
 };

@@ -1,6 +1,11 @@
 import { createSlice, PayloadAction, ThunkAction, AnyAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { Wrapper } from '../api/wrapper';
+import { catchallSet } from './patternsSlice';
+import { fallbackSet } from './templatesSlice';
+import { fetchRevisions as fetchPatternRevisions } from "../app/patternsSlice";
+import { fetchRevisions as fetchTemplateRevisions } from "../app/templatesSlice";
+import { batch } from 'react-redux';
 
 interface DomainState {
   name: string | undefined;
@@ -38,8 +43,18 @@ export function setDomain(name: string): ThunkAction<
   AnyAction
 > {
   return async function setDomainThunk(dispatch, _, wrapper) {
-    wrapper.setDomain(name);
-    dispatch(domainSet({ name }))
+    const domainName = wrapper.setDomain(name);
+    const catchallPattern = wrapper.getCatchAllPattern();
+    const fallbackTemplate = wrapper.getFallbackTemplate();
+    batch(() => {
+      dispatch(domainSet({ name: domainName }));
+      // todo: consider moving these two to this slice
+      catchallPattern && dispatch(catchallSet({ pattern: catchallPattern }));
+      fallbackTemplate && dispatch(fallbackSet({ template: fallbackTemplate }));
+      // todo: consider having a single fetchRevisions thunk action
+      dispatch(fetchPatternRevisions());
+      dispatch(fetchTemplateRevisions());
+    });
   }
 }
 

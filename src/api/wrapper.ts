@@ -13,6 +13,12 @@ export abstract class Wrapper {
   
   abstract setDomain(name: string): string;
 
+  // todo: revise whether we want to get these from the core library / 
+  // translation server, or pass them as parameter to the setDomain method
+  // above (may be related to w2c-core's T302588)
+  abstract getCatchAllPattern(): PatternConfig | undefined;
+  abstract getFallbackTemplate(): TemplateConfig | undefined;
+
   abstract fetchConfigRevisions(config: "patterns" | "templates" | "tests"): Promise<ConfigRevision[]>;
 
   abstract loadPatternsRevision(revid: number): Promise<PatternConfig[]>;

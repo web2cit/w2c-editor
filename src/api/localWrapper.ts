@@ -11,7 +11,7 @@ import {
   TemplateConfig
 } from "../types";
 import { FieldName } from "web2cit/dist/translationField";
-import { TemplateDefinition, TestDefinition } from "web2cit/dist/types";
+import { FallbackTemplateDefinition, TemplateDefinition, TestDefinition } from "web2cit/dist/types";
 
 export class LocalWrapper extends Wrapper {
   domain: Domain | undefined;
@@ -19,6 +19,23 @@ export class LocalWrapper extends Wrapper {
   setDomain(name: string): string {
     this.domain = new Domain(name);
     return this.domain.domain;
+  }
+
+  getCatchAllPattern(): PatternConfig | undefined {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const pattern = this.domain.patterns.catchall?.toJSON() ?? undefined;
+    return pattern;
+  }
+
+  getFallbackTemplate(): TemplateConfig | undefined {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const template = this.domain.templates.fallback;
+    const editorTemplate = template && coreTemplateToEditor(template);
+    return editorTemplate;
   }
 
   // todo: consider supporting a fetchLatestRevision
@@ -110,7 +127,7 @@ export class LocalWrapper extends Wrapper {
     const { pattern, label } = value;
     // todo: we shouldn't check if pattern expression is undefined/null
     // if we create specific types for catch-all patterns/fallback templates
-    if (pattern === undefined) {
+    if (pattern === null) {
       throw new TypeError(
         "Invalid pattern expression"
       );
@@ -206,12 +223,25 @@ export class LocalWrapper extends Wrapper {
     }
     const paths = this.domain.getPaths();
     const templates = this.domain.templates.paths;
+    
+    const pathsByPattern: Map<string|null, string[]> = this.domain.patterns.sortPaths(paths);
+    const templatePathsByPattern: Map<string|null, string[]> = this.domain.patterns.sortPaths(templates);
 
     // fixme: sortPaths returns catch-all pattern actual glob (i.e., not
     // undefined or null)
-    const pathsByPattern = this.domain.patterns.sortPaths(paths);
-
-    const templatePathsByPattern = this.domain.patterns.sortPaths(templates);
+    const catchall = this.domain.patterns.catchall?.pattern;
+    if (catchall !== undefined) {
+      const catchallPatternPaths = pathsByPattern.get(catchall);
+      if (catchallPatternPaths !== undefined) {
+        pathsByPattern.set(null, catchallPatternPaths);
+        pathsByPattern.delete(catchall);
+      };
+      const catchallPatternTempates = templatePathsByPattern.get(catchall);
+      if (catchallPatternTempates !== undefined) {
+        templatePathsByPattern.set(null, catchallPatternTempates);
+        templatePathsByPattern.delete(catchall);
+      }
+    };
 
     const patternsByPath: Map<string, string | null> = new Map();
     // todo: read https://mariusschulz.com/blog/downlevel-iteration-for-es3-es5-in-typescript
@@ -374,7 +404,7 @@ export class LocalWrapper extends Wrapper {
  */
 function editorTemplateToCore(template: TemplateConfig): TemplateDefinition {
   const { path, label, fields } = template;
-  if (path === undefined) {
+  if (path === null) {
     throw new TypeError(
       "Invalid template path"
     );
@@ -407,12 +437,13 @@ function editorTemplateToCore(template: TemplateConfig): TemplateDefinition {
  *  format.
  * @returns The template definition in w2c-editor format.
  */
-function coreTemplateToEditor(template: TemplateDefinition): TemplateConfig {
-  const { path, label, fields } = template;
+function coreTemplateToEditor(
+  template: TemplateDefinition | FallbackTemplateDefinition
+): TemplateConfig {
   const editorTemplate: TemplateConfig = {
-    path,
-    label,
-    fields: fields.map((field) => ({
+    path: 'path' in template ? template.path : null,
+    label: template.label,
+    fields: template.fields.map((field) => ({
       name: field.fieldname,
       required: field.required,
       procedures: field.procedures.map((procedure) => ({

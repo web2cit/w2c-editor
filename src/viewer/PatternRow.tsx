@@ -4,34 +4,72 @@ import { Box, Card, CardActions, CardContent, Collapse, IconButton, Paper, Stack
 import { Edit, ExpandLess, ExpandMore } from "@mui/icons-material";
 import ListItemActionsComponent from "../ListItemActions";
 import { TemplateRow } from './TemplateRow';
+import { useAppSelector } from "../app/hooks";
+import { selectAllTemplates, selectFallbackTemplate } from "../app/templatesSlice";
+import { selectAllTargets } from "../app/targetsSlice";
+import { selectPatternByExpression } from "../app/patternsSlice";
+import { PatternConfig } from "../types";
   
 interface PatternRowProps {
-  pattern: string | undefined;
-  label?: string;
-  fallbackTemplate: boolean;
-  templates: {
-    path: string | undefined;
-    label?: string;
-  }[];
-  targets: {
-    path: string;
-    score: number | undefined;
-    template: string | undefined;
-  }[];
-  currentPath?: string;
+  pattern: string | null;
+  // label?: string;
+  // fallbackTemplate: boolean;
+  // templates: {
+  //   path: string | undefined;
+  //   label?: string;
+  // }[];
+  // targets: {
+  //   path: string;
+  //   score: number | undefined;
+  //   template: string | undefined;
+  // }[];
+  // currentPath?: string;
   // editable: boolean;
   first?: boolean;
   last?: boolean;
+  catchall?: PatternConfig;
 }
   
 export function PatternRow(props: PatternRowProps) {
   const { t } = useTranslation();
+
+  const pattern = useAppSelector((state) => {
+    if (props.pattern === null) {
+      return props.catchall
+    } else {
+      selectPatternByExpression(state, props.pattern);
+    }
+  });
+
+  // todo: consider having selectTargetsByPattern or selectPathsByPattern
+  // selectors
+  const targets = useAppSelector(selectAllTargets).filter(
+    (target) => target.pattern === props.pattern
+  );
+  const paths = targets.map((target) => target.path);
+
+  // todo: consider having selectTemplatesByPattern selector?
+  const templates = useAppSelector(selectAllTemplates).filter(
+    // fixme: handle fallback templates
+    (template) => paths.includes(template.path ?? '')
+  );
+
+  const fallbackTemplate = useAppSelector(selectFallbackTemplate);
+
+  if (pattern === undefined) {
+    return (
+      <>
+      {
+        `Error: Could not find pattern for expression ${props.pattern} in app's state.`
+      }
+      </>
+    )
+  }
+
   const collapsed = false;
-  const fallback = props.pattern === undefined;
-  const templates = [
-    ...props.templates
-  ];
-  if (props.fallbackTemplate) templates.push({ path: undefined })
+  const catchall = pattern.pattern === null;
+  
+  if (fallbackTemplate) templates.push(fallbackTemplate);
 
   return (
     <Card
@@ -73,24 +111,24 @@ export function PatternRow(props: PatternRowProps) {
             }}
           >
             <TextField
-              disabled={fallback}
+              disabled={catchall}
               label="pattern"
               size="small"
               value={
-                fallback ?
+                catchall ?
                 "*/**" :
                 props.pattern
               }  // we should get this one from the config
               variant="outlined"
             />
             <TextField
-              disabled={fallback}
+              disabled={catchall}
               label="label"
               size="small"
               value={
-                fallback ?
+                catchall ?
                 "fallback" :
-                props.label
+                pattern.label
               }
               variant="outlined"
             />
@@ -98,25 +136,27 @@ export function PatternRow(props: PatternRowProps) {
           <ListItemActionsComponent
             first={props.first}
             last={props.last}
-            editable={!fallback}
+            editable={!catchall}
           />
         </Box>
         <Collapse in={!collapsed}>
           <Stack spacing={1}>
           {
             templates.map((template, index) => {
-
-              const targets = props.targets.filter(
-                (target) => target.template === template.path
-              );
+              // const targets = props.targets.filter(
+              //   (target) => target.template === template.path
+              // );
               return (
                 <TemplateRow
-                  path={template.path}
-                  label={template.label}
-                  targets={targets}
+                  path={template.path ?? null}
+                  // label={template.label}
+                  // targets={targets.filter(
+                  //   (target) => target.
+                  // ))}
                   first={index === 0}
-                  last={index === props.templates.length - 1}
-                  currentPath={props.currentPath}
+                  last={index === templates.length - 1}
+                  // currentPath={props.currentPath}
+                  fallback={fallbackTemplate}
                 />
               );
             })

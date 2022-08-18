@@ -47,17 +47,16 @@ export interface TargetFieldOutput {
   test?: TestFieldOutput;
 }
 
-//
+// todo: consider renaming PatternConfig etc as PatternDefinition (as in core)
 // todo: consider having a separate type for catch-all pattern
-// todo: consider using null pattern for catch-all pattern
 export interface PatternConfig {
-  pattern: string | undefined;
+  pattern: string | null;
   label?: string;
 }
 
 // template config
 export interface TemplateConfig {
-  path: string | undefined;
+  path: string | null;
   label?: string;
   fields: TemplateFieldConfig[];
 }

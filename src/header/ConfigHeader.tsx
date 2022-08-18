@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -15,17 +16,39 @@ import {
 import { Refresh } from "@mui/icons-material";
 import { ConfigRevisionCard } from "./ConfigRevisionCard";
 import { ConfigMetadata } from "../types";
+import { useAppSelector } from "../app/hooks";
+import { selectDomainName } from "../app/domainSlice";
   
 interface ConfigHeaderProps {
-  domain: string;
-  // storage: string;
-  patternConfig: ConfigMetadata;
-  templateConfig: ConfigMetadata;
-  testConfig: ConfigMetadata;
+  // domain: string;
+  // // storage: string;
+  // patternConfig: ConfigMetadata;
+  // templateConfig: ConfigMetadata;
+  // testConfig: ConfigMetadata;
 }
 
 export function ConfigHeader(props: ConfigHeaderProps) {
   const { t } = useTranslation();
+
+  const domain = useAppSelector(selectDomainName);
+
+  //   // on refresh
+  //   onRefresh: // action triggered when the refresh button at the top is pressed
+  //   // consider having separate buttons per config file
+  //   // do we need extra refresh buttons? for example next to each target?
+
+  // what the refresh button in the header does depends on the mode
+  // * the mode with the w2c library reloads the configuration files from Meta
+  // * the mode simply showing the server results reloads the server response
+
+  //   handleRefresh() {
+  //     // fetch configuration revisions again
+  //     // what should we do if there is a new revision?
+  //     // we should consider whether the user has made changes
+  //     // and maybe ask them whether we should overwrite them
+  //     // update the patterns/templates/tests props accordingly
+  //     // maybe also update pathToPattern and outputsByTarget
+  //   }
 
   return (
     <Card>
@@ -36,7 +59,7 @@ export function ConfigHeader(props: ConfigHeaderProps) {
         }}
       >
         <CardHeader
-          title={props.domain}
+          title={domain}
         />
         <CardActions>
         {/* 
@@ -67,22 +90,22 @@ export function ConfigHeader(props: ConfigHeaderProps) {
       >
         <ConfigRevisionCard
           type="patterns"
-          revisions={props.patternConfig.revisions}
-          revid={props.patternConfig.revid}
-          changed={props.patternConfig.changed}
+          // revisions={props.patternConfig.revisions}
+          // revid={props.patternConfig.revid}
+          // changed={props.patternConfig.changed}
         />
         <ConfigRevisionCard
           type="templates"
-          revisions={props.templateConfig.revisions}
-          revid={props.templateConfig.revid}
-          changed={props.templateConfig.changed}
+          // revisions={props.templateConfig.revisions}
+          // revid={props.templateConfig.revid}
+          // changed={props.templateConfig.changed}
         />
-        <ConfigRevisionCard
+        {/* <ConfigRevisionCard
           type="tests"
-          revisions={props.templateConfig.revisions}
-          revid={props.templateConfig.revid}
-          changed={props.templateConfig.changed}
-        />
+          // revisions={props.templateConfig.revisions}
+          // revid={props.templateConfig.revid}
+          // changed={props.templateConfig.changed}
+        /> */}
       </CardContent>
     </Card>
   )

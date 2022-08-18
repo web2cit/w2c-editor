@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { TemplateConfig } from '../types'
 import type { RootState } from './store'
 import { 
@@ -14,7 +14,10 @@ import {
 import { batch } from "react-redux";
 import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from "./targetsSlice";
 
-interface TemplatesState extends ConfigState<TemplateConfig> {}
+interface TemplatesState extends ConfigState<TemplateConfig> {
+  // todo: consider moving to the domain slice
+  fallback?: TemplateConfig;
+}
 
 const templatesAdapter = createEntityAdapter<TemplateConfig>({
   selectId: template => template.path ?? ''
@@ -46,7 +49,16 @@ const {
 export const templatesSlice = createSlice({
   name: 'templates',
   initialState,
-  reducers: getReducers(templatesAdapter),
+  reducers: {
+    ...getReducers(templatesAdapter),
+    fallbackSet: (
+      state,
+      action: PayloadAction<{ template: TemplateConfig }>
+    ) => {
+      const { template } = action.payload;
+      state.fallback = template;
+    }
+  },
   extraReducers: {
     'templates/fetchRevisions/pending': fetchRevisionsPendingReducer,
     'templates/fetchRevisions/fulfilled': fetchRevisionsFulfilledReducer,
@@ -67,12 +79,19 @@ export const selectTemplateRevisions: ConfigRevisionsSelector<RootState> = (stat
   return state.templates.metadata.revisions;
 }
 
+export function selectFallbackTemplate(
+  state: RootState
+): TemplateConfig | undefined {
+  return state.templates.fallback;
+}
+
 // action creators
 export const {
   add: templateAdded,
   remove: templateRemoved,
   move: templateMoved,
   update: templateUpdated,
+  fallbackSet
 } = templatesSlice.actions
 
 // thunk action creators
@@ -124,8 +143,8 @@ export const fetchRevisions: FetchRevisionsThunkActionCreator<RootState> = () =>
         dispatch({
           type: "templates/fetchRevisions/fulfilled",
           payload: { revisions }
-        })
-    });
+        });
+      });
     } catch {
       dispatch({
         type: "templates/fetchRevisions/rejected"
