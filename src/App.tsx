@@ -12,6 +12,7 @@ import { setDomain } from './app/domainSlice';
 // when user scrolls down
 
 interface AppProps {
+  url?: string;
   // mode: "sidebar" | "standalone"
 
   // whether we should provide options to edit the configuration files
@@ -22,11 +23,16 @@ interface AppProps {
 function App(props: AppProps) {
   const dispatch = useAppDispatch();
 
+  let hostname: string = "";
+  if (props.url) {
+    hostname = new URL(props.url).hostname;
+  };
+
   useEffect(() => {
     // note that in development mode react will call this twice on mount
     // see https://stackoverflow.com/questions/72238175/react-18-useeffect-is-getting-called-two-times-on-mount
     // and https://reactjs.org/docs/strict-mode.html#ensuring-reusable-state
-    dispatch(setDomain('www.elespectador.com'));
+    dispatch(setDomain(hostname));
 
     // fixme?: once the domain has been set, should other actions (e.g., catchallSet,
     // fetchRevisions, etc) be called from withing the setDomain thunk action

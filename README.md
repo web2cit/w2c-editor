@@ -1,3 +1,51 @@
+# Web2Cit Editor
+
+The editor can be injected as a sidebar on the page you are visiting using our
+bookmarklet.
+
+Alternatively, it can be used as a standalone editor.
+
+## Sidebar (bookmarklet)
+
+The bookmarklet injects the editor as a sidebar inside an iframe.
+
+We need to use an iframe so that we can reach metawiki for configuration files,
+and wikipedia for the Citoid API. Otherwise, it may be blocked by CSP policies
+of the target page.
+
+Note: CCSP may block loading the editor into the iframe altogether.
+There may be cases where CSP would allow loading the editor (script-src *), but
+forbid fetching config files or Citoid responses (connect-src).
+See https://bugs.chromium.org/p/chromium/issues/detail?id=233903
+See https://bugzilla.mozilla.org/show_bug.cgi?id=866522
+As of 2020, 7% of websites have CSP enabled: https://www.rapid7.com/blog/post/2020/11/02/overview-of-content-security-policies-csp-on-the-web/
+Should we consider avoiding the burden of using an iframe?
+Alternatively, using the standalone editor would not work with w2c-core wrapper
+if the target webpage uses CORS.
+Options left include having a browser extension, or a w2c-server wrapper.
+
+
+The bookmarklet also injects a fetcher on the parent page, so we can fetch
+HTML source code needed by some selection steps, in cases where CORS policy
+would forbid doing so from the iframe.
+
+# Known issues
+The bookmarklet loads an embed.js script from Web2Cit servers. This will fail if
+the parent page uses CSP to restrict script sources.
+
+The embed.js script creates an iframe sidebar which loads the editor from
+Web2Cit servers. This will fail with some CSP policies (e.g. frame).
+
+The editor may need to fetch HTML sources from the target web server. This is
+done either from the editor sidebar injected by the bookmarklet, or from the
+standalone editor. Hence, it won't work if the target server uses CORS.
+
+A solution for the latter would involve loading a fetcher to the parent page
+and have the sidebar iframe communicate with it via frame rpc to preload the
+webpage cache of w2c-core.
+
+Finally, the best solution would be having a browser extension.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

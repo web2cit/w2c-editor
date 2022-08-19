@@ -149,6 +149,7 @@ export function PatternRow(props: PatternRowProps) {
               return (
                 <TemplateRow
                   path={template.path ?? null}
+                  key={template.path}
                   // label={template.label}
                   // targets={targets.filter(
                   //   (target) => target.

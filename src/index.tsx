@@ -13,7 +13,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <App
+        url={window.location.hash.substring(1)}
+      />
     </Provider>
   </React.StrictMode>
 );

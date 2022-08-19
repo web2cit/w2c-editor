@@ -17,6 +17,9 @@ export class LocalWrapper extends Wrapper {
   domain: Domain | undefined;
 
   setDomain(name: string): string {
+    // todo: we should add w2c-editor to user agent header
+    // fixme: how come the browser is not overriding our user agent?
+    // https://meta.wikimedia.org/wiki/User-Agent_policy/es
     this.domain = new Domain(name);
     return this.domain.domain;
   }

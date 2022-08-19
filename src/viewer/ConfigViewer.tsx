@@ -78,6 +78,7 @@ export function ConfigViewer(props: ConfigViewerProps) {
           return (
             <PatternRow
               pattern={expression}
+              key={expression}
               // label={pattern.label}
               // fallbackTemplate={props.fallbackTemplate}
               // templates={templates.filter(
