@@ -1,9 +1,9 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardActions, CardContent, IconButton, Typography } from "@mui/material";
+import { Box, Card, CardActionArea, CardActions, CardContent, IconButton, Typography } from "@mui/material";
 import { ScoreComponent } from "../ScoreChip";
-import { selectTargetByPath, selectTargetSelection } from "../app/targetsSlice";
-import { useAppSelector } from "../app/hooks";
+import { selectTargetByPath, selectTargetSelection, targetSelected } from "../app/targetsSlice";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
   
 interface TargetRowProps {
   elevated: boolean;
@@ -15,6 +15,7 @@ interface TargetRowProps {
 export function TargetRow(props: TargetRowProps) {
   const { t } = useTranslation();
 
+  const dispatch = useAppDispatch();
   const target = useAppSelector(
     (state) => selectTargetByPath(state, props.path)
   );
@@ -29,6 +30,11 @@ export function TargetRow(props: TargetRowProps) {
     )
   }
 
+  function onCardClicked() {
+    dispatch(targetSelected({ path: props.path }))
+  }
+
+  // fixme: current not the same as selected
   const current = props.path === targetSelection;
 
   // fixme?: nesting a target in a template occurs in the template component
@@ -67,47 +73,53 @@ export function TargetRow(props: TargetRowProps) {
         </IconButton>
       }
       </CardActions> */}
-      <CardContent
-        sx={{ flex: 1 }}
+      <CardActionArea
+        onClick={onCardClicked}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between"
-          }}
+        <CardContent
+          sx={{ flex: 1 }}
         >
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
-              gap: 1
+              justifyContent: "space-between"
             }}
           >
-            <Typography>
-            {
-              target.path
-            }
-            </Typography>            
-          </Box>
-          <ScoreComponent
-            score={score}
-          />
-          {/* <ListItemActionsComponent
-            editable={true}
-          /> */}
-        </Box>
-        {/* <Collapse in={!collapsed}>
-        {
-          props.targets.map((target, index) => (
-            <TargetRow
-              path={target.path}
-              score={target.score}
-              borderless={false}      
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1
+              }}
+            >
+              <Typography
+                // noWrap
+              >
+              {
+                target.path
+              }
+              </Typography>            
+            </Box>
+            <ScoreComponent
+              score={score}
             />
-          ))
-        }
-        </Collapse> */}
-      </CardContent>
+            {/* <ListItemActionsComponent
+              editable={true}
+            /> */}
+          </Box>
+          {/* <Collapse in={!collapsed}>
+          {
+            props.targets.map((target, index) => (
+              <TargetRow
+                path={target.path}
+                score={target.score}
+                borderless={false}      
+              />
+            ))
+          }
+          </Collapse> */}
+        </CardContent>
+      </CardActionArea>
       {/* // no sorting
       do we want something to visit that target?
       something to get a proxied link?

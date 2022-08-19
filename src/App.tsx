@@ -3,8 +3,10 @@ import './App.css';
 import { AppBar, Box, Divider, Toolbar, Typography } from "@mui/material";
 import { ConfigHeader } from "./header/ConfigHeader";
 import { ConfigViewer } from "./viewer/ConfigViewer";
-import { useAppDispatch } from './app/hooks';
+import { useAppDispatch, useAppSelector } from './app/hooks';
 import { setDomain } from './app/domainSlice';
+import { selectTargetSelection } from './app/targetsSlice';
+import { TargetResultsComponent } from './result/TargetResultsComponent';
 
 // the header should collapse to a minimum
 // expression of domain + small config cards
@@ -22,6 +24,8 @@ interface AppProps {
 
 function App(props: AppProps) {
   const dispatch = useAppDispatch();
+
+  const targetSelection = useAppSelector(selectTargetSelection);
 
   let hostname: string = "";
   if (props.url) {
@@ -112,15 +116,12 @@ function App(props: AppProps) {
         // currentPath={"/article1"}
       />
       <Divider />
-      {/* {
-        props.selectedPath &&
+      {
+        targetSelection &&
         <TargetResultsComponent
-          target={props.targets.filter(
-            (target) => target.path === props.selectedPath
-          )[0]}
-          templates={props.templates}  // do we have to pass all templates?
-      />
-      } */}
+          path={targetSelection}
+        />
+      }
     </Box>    
   );
   // add footer

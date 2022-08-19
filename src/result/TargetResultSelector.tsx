@@ -14,7 +14,7 @@ import { ApplicabilityIndicator } from "../ApplicabilityIndicator";
   
 interface TargetResultSelectorProps {
   results: TargetResult[];
-  selection: TemplatePath;
+  selection: TemplatePath | undefined;
   onSelectionChange: (selection: TemplatePath) => void
 }
 
@@ -51,7 +51,7 @@ export function TargetResultSelector(props: TargetResultSelectorProps) {
             // t('target-result.template-selector.label')
           }
           size="small"
-          value={props.selection}
+          value={props.selection ?? undefined}
           renderValue={(value) => value}
           onChange={handleSelectionChange}
           sx={{ flex: 1 }}
@@ -59,7 +59,7 @@ export function TargetResultSelector(props: TargetResultSelectorProps) {
         {
           props.results.map((result) => (
             <MenuItem
-              value={result.template}
+              value={result.template ?? undefined}
               sx={{
                 opacity: result.output === null ? .38 : 1,
                 display: "flex"

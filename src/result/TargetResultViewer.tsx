@@ -14,12 +14,17 @@ import {
   TestFieldConfig,
   TestFieldOutput,
 } from '../types';
+import { useAppSelector } from "../app/hooks";
+import { selectTemplateByPath } from "../app/templatesSlice";
+import { selectTargetResultByPathAndTemplate } from "../app/targetsSlice";
   
 interface TargetResultViewerProps {
-  templateConfig: TemplateConfig;
-  testConfig: TestConfig;
-  targetOutput: TargetOutput | undefined;
-  // editableTemplate: boolean  // selectedTemplate && currentTarget
+  path: string;
+  template: string;
+  // templateConfig: TemplateConfig;
+  // testConfig: TestConfig;
+  // targetOutput: TargetOutput | undefined;
+  // // editableTemplate: boolean  // selectedTemplate && currentTarget
   // editableTest: boolean  // currentTarget
 }
 
@@ -38,47 +43,37 @@ interface TargetResultField {
   
 export function TargetResultViewer(props: TargetResultViewerProps) {
   const { t } = useTranslation();
+
+  const template = useAppSelector(
+    (state) => selectTemplateByPath(state, props.template)
+  );
+  // const test = useAppSelector(
+  //   (state) => selectTestByPath(state, props.path)
+  // );
+  const result = useAppSelector(
+    (state) => selectTargetResultByPathAndTemplate(
+      state,
+      props.path,
+      props.template
+    )
+  );
   
-  const fieldnames = Array.from(new Set([
-    ...props.templateConfig.fields.map((field) => field.name),
-    ...props.testConfig.fields.map((field) => field.name)
-  ]));
-
-  const fields: TargetResultField[] = fieldnames.map((fieldname) => {
-    const outputField = props.targetOutput && props.targetOutput.fields.filter(
-      (field) => field.name === fieldname
-    )[0];
-    return {
-      name: fieldname,
-      template: {
-        config: props.templateConfig.fields.filter(
-          (field) => field.name === fieldname
-        )[0],
-        output: outputField && outputField.template
-      },
-      test: {
-        config: props.testConfig.fields.filter(
-          (field) => field.name === fieldname
-        )[0],
-        output: outputField && outputField.test
-      }
-    }
-  })
-
   return (
     <Stack
       spacing={1}
     >
     {
-      fields.map((field) => (
-        <TargetFieldComponent
+      // fixme: result!
+      result!.output?.fields.map((field) => {
+        const name = field.name;
+        return <TargetFieldComponent
           name={field.name}
-          templateConfig={field.template.config}
-          templateOutput={field.template.output}
-          testConfig={field.test.config}
-          testOutput={field.test.output}
+          templateConfig={template!.fields.find((field) => field.name === name)!}
+          templateOutput={field.template}
+          // testConfig={field.test.config}
+          testOutput={field.test}
         />
-      ))
+      })
     }
       <Button>
       {

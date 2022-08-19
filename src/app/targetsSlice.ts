@@ -1,6 +1,6 @@
 import type { RootState } from './store'
 import { AnyAction, createEntityAdapter, createSlice, EntityState, PayloadAction, ThunkAction, Update } from '@reduxjs/toolkit'
-import { Target, TargetResult } from '../types';
+import { Target, TargetResult, TemplatePath } from '../types';
 import { Wrapper } from '../api/wrapper';
 
 type PatternValue = string | null;
@@ -35,6 +35,10 @@ const targetsSlice = createSlice({
   name: 'targets',
   initialState: initialState,
   reducers: {
+    targetSelected: (state, action: PayloadAction<{ path: string }>) => {
+      const { path } = action.payload;
+      state.selection = path;
+    },
     // Can pass adapter functions directly as case reducers.  Because we're passing this
     // as a value, `createSlice` will auto-generate the `bookAdded` action type / creator
     targetsRefreshed: targetsAdapter.setAll,
@@ -109,6 +113,20 @@ export const {
 export function selectTargetSelection(state: RootState): string | undefined {
   return state.targets.selection;
 };
+
+export function selectTargetResultByPathAndTemplate(
+  state: RootState,
+  path: string,
+  template: TemplatePath
+): TargetResult | undefined {
+  const target = selectTargetByPath(state, path);
+  let result;
+  if (target !== undefined) {
+    result = target.results.find((result) => result.template === template);
+  }
+  return result;
+}
+
 // export const selectPostsByUser = createSelector(
 //   [selectAllPosts, (state, userId) => userId],
 //   (posts, userId) => posts.filter(post => post.user === userId)
@@ -121,7 +139,8 @@ const {
   targetOutputsUpdatedByPath,
 } = targetsSlice.actions;
 export const {
-  allTargetOutputsExpired
+  allTargetOutputsExpired,
+  targetSelected
 } = targetsSlice.actions;
 
 // Initially, I wanted to have how paths are sorted into patterns in the state
