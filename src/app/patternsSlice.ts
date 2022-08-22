@@ -1,5 +1,5 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { PatternConfig } from '../types'
+import { CatchallPatternConfig, PatternConfig } from '../types'
 import type { RootState } from './store'
 import { 
   ConfigState,
@@ -16,7 +16,7 @@ import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from 
 
 interface PatternsState extends ConfigState<PatternConfig> {
   // todo: consider moving this to the domain slice
-  catchall?: PatternConfig;
+  catchall?: CatchallPatternConfig;
 }
 
 const patternsAdapter = createEntityAdapter<PatternConfig>({
@@ -53,7 +53,7 @@ export const patternsSlice = createSlice({
     ...getReducers(patternsAdapter),
     catchallSet: (
       state,
-      action: PayloadAction<{ pattern: PatternConfig }>
+      action: PayloadAction<{ pattern: CatchallPatternConfig }>
     ) => {
       const { pattern } = action.payload;
       state.catchall = pattern;
@@ -81,7 +81,7 @@ export const selectPatternRevisions: ConfigRevisionsSelector<RootState> = (state
 
 export function selectCatchallPattern(
   state: RootState
-): PatternConfig | undefined {
+): CatchallPatternConfig | undefined {
   return state.patterns.catchall;
 };
 

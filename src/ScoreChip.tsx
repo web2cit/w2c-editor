@@ -41,11 +41,13 @@ export function ScoreComponent(props: ScoreComponentProps) {
         )}
       >
         <Chip
-          label={`${props.score}%`}
+          label={`${
+            Math.floor(props.score*100)
+          }%`}
           color={
-            props.score > 66 ?
+            props.score > 2/3 ?
             "success" :
-            props.score > 33 ?
+            props.score > 1/3 ?
             "warning" :
             "error"
           }

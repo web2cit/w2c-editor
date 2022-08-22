@@ -17,7 +17,7 @@ interface TargetFieldComponentProps {
   name: string;  // should be controlled?
   templateConfig: TemplateFieldConfig;
   templateOutput: TemplateFieldOutput | undefined;
-  // testConfig: TestFieldConfig;
+  testConfig: TestFieldConfig;
   testOutput: TestFieldOutput | undefined;
 }
 
@@ -94,15 +94,15 @@ export function TargetFieldComponent(props: TargetFieldComponentProps) {
             </IconButton>
           </Tooltip>
         </Divider>
-        {/* <TestFieldComponent
+        <TestFieldComponent
           fieldname={props.name}
-          // config={props.testConfig}
+          config={props.testConfig}
           output={props.testOutput}
           // delete!
           mandatory={true}
           array={true}
           sx={{ flex: 1 }}
-        /> */}
+        />
       </CardContent>
       <Divider variant="middle" />
       <Collapse in={true}>

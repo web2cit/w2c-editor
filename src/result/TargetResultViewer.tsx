@@ -17,6 +17,7 @@ import {
 import { useAppSelector } from "../app/hooks";
 import { selectTemplateByPath } from "../app/templatesSlice";
 import { selectTargetResultByPathAndTemplate } from "../app/targetsSlice";
+import { selectTestsByPath } from "../app/testsSlice";
   
 interface TargetResultViewerProps {
   path: string;
@@ -47,9 +48,9 @@ export function TargetResultViewer(props: TargetResultViewerProps) {
   const template = useAppSelector(
     (state) => selectTemplateByPath(state, props.template)
   );
-  // const test = useAppSelector(
-  //   (state) => selectTestByPath(state, props.path)
-  // );
+  const test = useAppSelector(
+    (state) => selectTestsByPath(state, props.path)
+  );
   const result = useAppSelector(
     (state) => selectTargetResultByPathAndTemplate(
       state,
@@ -70,7 +71,13 @@ export function TargetResultViewer(props: TargetResultViewerProps) {
           name={field.name}
           templateConfig={template!.fields.find((field) => field.name === name)!}
           templateOutput={field.template}
-          // testConfig={field.test.config}
+          testConfig={
+            test!.fields.find((field) => field.name === name) ??
+            {
+              name,
+              goal: undefined
+            }
+          }
           testOutput={field.test}
         />
       })

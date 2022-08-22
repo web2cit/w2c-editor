@@ -11,7 +11,7 @@ import { ScoreComponent } from "../ScoreChip";
 
 interface TestFieldComponentProps {
   fieldname: string;
-  config: TestFieldConfig;
+  config: TestFieldConfig | undefined;
   output: TestFieldOutput | undefined;
   // consider pulling these from a configuration file based on the fieldname
   mandatory: boolean; // mandatory fields won't accept an empty output
@@ -35,7 +35,7 @@ function TestFieldComponent(props: TestFieldComponentProps) {
         }}
       >
       {
-        props.config.goal === undefined ?
+        props.config === undefined ?
         <Button variant="contained">
         {
           t("test-field-output.add-goal")

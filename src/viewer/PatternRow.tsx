@@ -8,7 +8,7 @@ import { useAppSelector } from "../app/hooks";
 import { selectAllTemplates, selectFallbackTemplate } from "../app/templatesSlice";
 import { selectAllTargets } from "../app/targetsSlice";
 import { selectPatternByExpression } from "../app/patternsSlice";
-import { PatternConfig } from "../types";
+import { TemplateConfig, FallbackTemplateConfig, PatternConfig } from "../types";
   
 interface PatternRowProps {
   pattern: string | null;
@@ -49,7 +49,7 @@ export function PatternRow(props: PatternRowProps) {
   const paths = targets.map((target) => target.path);
 
   // todo: consider having selectTemplatesByPattern selector?
-  const templates = useAppSelector(selectAllTemplates).filter(
+  const templates: Array<TemplateConfig | FallbackTemplateConfig> = useAppSelector(selectAllTemplates).filter(
     // fixme: handle fallback templates
     (template) => paths.includes(template.path ?? '')
   );

@@ -2,9 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import domainReducer from './domainSlice';
 import patternsReducer from './patternsSlice';
 import templatesReducer from './templatesSlice';
-// import testsReducer from './testsSlice';
+import testsReducer from './testsSlice';
 import targetsReducer from './targetsSlice';
-import { TemplateConfig, TestConfig } from '../types';
 import { LocalWrapper } from '../api/localWrapper';
 import { Wrapper } from '../api/wrapper';
 
@@ -31,7 +30,7 @@ export const store = configureStore({
     domain: domainReducer,
     patterns: patternsReducer,
     templates: templatesReducer,
-    // tests: testsReducer,
+    tests: testsReducer,
     targets: targetsReducer
   },
   middleware: getDefaultMiddleware =>

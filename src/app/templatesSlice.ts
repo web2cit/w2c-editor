@@ -1,5 +1,5 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { TemplateConfig } from '../types'
+import { FallbackTemplateConfig, TemplateConfig } from '../types'
 import type { RootState } from './store'
 import { 
   ConfigState,
@@ -16,11 +16,11 @@ import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from 
 
 interface TemplatesState extends ConfigState<TemplateConfig> {
   // todo: consider moving to the domain slice
-  fallback?: TemplateConfig;
+  fallback?: FallbackTemplateConfig;
 }
 
 const templatesAdapter = createEntityAdapter<TemplateConfig>({
-  selectId: template => template.path ?? ''
+  selectId: (template) => template.path ?? ''
 })
 
 const initialState: TemplatesState = {
@@ -53,7 +53,7 @@ export const templatesSlice = createSlice({
     ...getReducers(templatesAdapter),
     fallbackSet: (
       state,
-      action: PayloadAction<{ template: TemplateConfig }>
+      action: PayloadAction<{ template: FallbackTemplateConfig }>
     ) => {
       const { template } = action.payload;
       state.fallback = template;
@@ -81,7 +81,7 @@ export const selectTemplateRevisions: ConfigRevisionsSelector<RootState> = (stat
 
 export function selectFallbackTemplate(
   state: RootState
-): TemplateConfig | undefined {
+): FallbackTemplateConfig | undefined {
   return state.templates.fallback;
 }
 

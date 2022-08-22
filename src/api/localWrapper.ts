@@ -8,7 +8,8 @@ import {
   Target,
   PatternConfig,
   TestConfig,
-  TemplateConfig
+  TemplateConfig,
+  FallbackTemplateConfig
 } from "../types";
 import { FieldName } from "web2cit/dist/translationField";
 import { FallbackTemplateDefinition, TemplateDefinition, TestDefinition } from "web2cit/dist/types";
@@ -32,7 +33,7 @@ export class LocalWrapper extends Wrapper {
     return pattern;
   }
 
-  getFallbackTemplate(): TemplateConfig | undefined {
+  getFallbackTemplate(): FallbackTemplateConfig | undefined {
     if (this.domain === undefined) {
       throw new InitializationError();
     };
@@ -105,7 +106,7 @@ export class LocalWrapper extends Wrapper {
     this.domain.templates.loadRevision(revision);
     const templates = this.domain.templates.toJSON();
     // core's TemplateDefinition differs from editor's TemplateConfig
-    return templates.map(coreTemplateToEditor);
+    return templates.map((template) => coreTemplateToEditor(template));
   }
 
   async loadTestsRevision(revid: number): Promise<TestConfig[]> {
@@ -218,7 +219,37 @@ export class LocalWrapper extends Wrapper {
       this.addTemplate(value, index);
     }
     // what about returning a change object here?
-  };  
+  };
+
+  addTest(value: TestConfig, index?: number): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    const test = editorTestToCore(value);
+    this.domain.tests.add(test, index);
+  };
+
+  removeTest(id: string): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    this.domain.tests.remove(id);
+  };
+
+  updateTest(id: string, value: TestConfig): void {
+    if (this.domain === undefined) {
+      throw new InitializationError();
+    };
+    // todo: have w2c-core natively support updating config values
+    const index = this.domain.tests.get().findIndex(
+      (test) => test.path === id
+    );
+    if (index > -1) {
+      this.domain.tests.remove(id);
+      this.addTest(value, index);
+    }
+    // what about returning a change object here?
+  };
 
   getTargets(): Target[] {
     if (this.domain === undefined) {
@@ -440,10 +471,12 @@ function editorTemplateToCore(template: TemplateConfig): TemplateDefinition {
  *  format.
  * @returns The template definition in w2c-editor format.
  */
+function coreTemplateToEditor( template: TemplateDefinition ): TemplateConfig
+function coreTemplateToEditor( template: FallbackTemplateDefinition ): FallbackTemplateConfig
 function coreTemplateToEditor(
   template: TemplateDefinition | FallbackTemplateDefinition
-): TemplateConfig {
-  const editorTemplate: TemplateConfig = {
+): TemplateConfig | FallbackTemplateConfig {
+  const editorTemplate: TemplateConfig | FallbackTemplateConfig = {
     path: 'path' in template ? template.path : null,
     label: template.label,
     fields: template.fields.map((field) => ({

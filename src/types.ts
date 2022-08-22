@@ -50,14 +50,24 @@ export interface TargetFieldOutput {
 // todo: consider renaming PatternConfig etc as PatternDefinition (as in core)
 // todo: consider having a separate type for catch-all pattern
 export interface PatternConfig {
-  pattern: string | null;
+  pattern: string;
   label?: string;
+}
+
+// 
+export interface CatchallPatternConfig {
+  pattern: string;
 }
 
 // template config
 export interface TemplateConfig {
-  path: string | null;
+  path: string;
   label?: string;
+  fields: TemplateFieldConfig[];
+}
+
+export interface FallbackTemplateConfig {
+  path: null;
   fields: TemplateFieldConfig[];
 }
 

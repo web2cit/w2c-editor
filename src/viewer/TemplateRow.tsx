@@ -7,7 +7,7 @@ import { TargetRow } from "./TargetRow";
 import { useAppSelector } from "../app/hooks";
 import { selectTemplateByPath } from "../app/templatesSlice";
 import { selectAllTargets, selectTargetSelection } from "../app/targetsSlice";
-import { TemplateConfig } from "../types";
+import { FallbackTemplateConfig, TemplateConfig } from "../types";
   
 interface TemplateRowProps {
   // fixme: fallback template should be null
@@ -20,7 +20,7 @@ interface TemplateRowProps {
   first?: boolean;
   last?: boolean;
   // currentPath?: string;
-  fallback?: TemplateConfig;
+  fallback?: FallbackTemplateConfig;
 }
   
 export function TemplateRow(props: TemplateRowProps) {

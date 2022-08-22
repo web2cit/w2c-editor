@@ -100,12 +100,12 @@ export function ConfigHeader(props: ConfigHeaderProps) {
           // revid={props.templateConfig.revid}
           // changed={props.templateConfig.changed}
         />
-        {/* <ConfigRevisionCard
+        <ConfigRevisionCard
           type="tests"
           // revisions={props.templateConfig.revisions}
           // revid={props.templateConfig.revid}
           // changed={props.templateConfig.changed}
-        /> */}
+        />
       </CardContent>
     </Card>
   )

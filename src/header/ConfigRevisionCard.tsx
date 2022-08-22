@@ -15,6 +15,8 @@ import { Save } from "@mui/icons-material";
 import { ConfigMetadata } from "../types";
 import { selectPatternRevisions, loadRevision as loadPatternsRevision } from "../app/patternsSlice";
 import { selectTemplateRevisions, loadRevision as loadTemplatesRevision } from "../app/templatesSlice";
+import { selectTestRevisions, loadRevision as loadTestsRevision } from "../app/testsSlice";
+import { LoadRevisionThunkActionCreator } from "../app/configSlice";
   
 // interface ConfigRevisionCardProps extends ConfigMetadata {
 //   type: string;
@@ -39,27 +41,35 @@ export function ConfigRevisionCard(props: ConfigRevisionCardProps) {
   // alternatively, have a function that returns the appropriate selector, etc
   // depending on the config type
   let selector;
+  let loadRevision: (
+    typeof loadPatternsRevision |
+    typeof loadTemplatesRevision |
+    typeof loadTestsRevision
+  )
   if (props.type === "patterns") {
     selector = selectPatternRevisions;
+    loadRevision = loadPatternsRevision;
   } else if (props.type === "templates") {
     selector = selectTemplateRevisions;
+    loadRevision = loadTemplatesRevision;
+  } else {
+    selector = selectTestRevisions;
+    loadRevision = loadTestsRevision;
   }
-  if (selector === undefined) throw new Error();
-  const revisions = useAppSelector(selector);
   
+  // if (selector === undefined || loadRevision === undefined) throw new Error();
+  const revisions = useAppSelector(selector);
+
   // todo: select currently loaded revid from state
 
   useEffect(() => {
     // todo: if no revision loaded (including draft revision)
     if (revisions !== undefined) {
-      const revid = revisions.at(-1)?.id;
-      if (revid) dispatch(
-        props.type === "patterns" ?
-        loadPatternsRevision(revid) :
-        loadTemplatesRevision(revid)
-      );
+      // note that newest revisions appear first
+      const revid = revisions[0]?.id;
+      if (revid) dispatch(loadRevision(revid));
     }
-  }, [revisions, dispatch]);
+  }, [revisions, dispatch, loadRevision]);
 
   return (
     <Card>

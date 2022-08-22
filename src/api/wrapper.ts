@@ -1,6 +1,6 @@
 // an abstract class defining what wrappers should look like
 
-import { Target, TargetResult, TemplateConfig, TestConfig } from "../types"
+import { CatchallPatternConfig, FallbackTemplateConfig, Target, TargetResult, TemplateConfig, TestConfig } from "../types"
 import { PatternConfig, ConfigRevision } from "../types"
 
 // We may have different wrappers depending on how we generate the
@@ -16,8 +16,8 @@ export abstract class Wrapper {
   // todo: revise whether we want to get these from the core library / 
   // translation server, or pass them as parameter to the setDomain method
   // above (may be related to w2c-core's T302588)
-  abstract getCatchAllPattern(): PatternConfig | undefined;
-  abstract getFallbackTemplate(): TemplateConfig | undefined;
+  abstract getCatchAllPattern(): CatchallPatternConfig | undefined;
+  abstract getFallbackTemplate(): FallbackTemplateConfig | undefined;
 
   abstract fetchConfigRevisions(config: "patterns" | "templates" | "tests"): Promise<ConfigRevision[]>;
 
@@ -43,7 +43,9 @@ export abstract class Wrapper {
   abstract moveTemplate(id: string, index: number): void;
   abstract updateTemplate(id: string, value: TemplateConfig): void;
 
-  // same with tests
+  abstract addTest(value: TestConfig): void;
+  abstract removeTest(id: string): void;
+  abstract updateTest(id: string, value: TestConfig): void;
 
   // consider accepting a pattern argument that forces pattern grouping so that
   // it does not have to be calculated again

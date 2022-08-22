@@ -5,6 +5,7 @@ import { catchallSet } from './patternsSlice';
 import { fallbackSet } from './templatesSlice';
 import { fetchRevisions as fetchPatternRevisions } from "../app/patternsSlice";
 import { fetchRevisions as fetchTemplateRevisions } from "../app/templatesSlice";
+import { fetchRevisions as fetchTestRevisions } from "../app/testsSlice";
 import { batch } from 'react-redux';
 
 interface DomainState {
@@ -54,6 +55,7 @@ export function setDomain(name: string): ThunkAction<
       // todo: consider having a single fetchRevisions thunk action
       dispatch(fetchPatternRevisions());
       dispatch(fetchTemplateRevisions());
+      dispatch(fetchTestRevisions())
     });
   }
 }
