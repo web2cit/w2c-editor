@@ -256,11 +256,12 @@ export class LocalWrapper extends Wrapper {
     if (this.domain === undefined) {
       throw new Error();
     }
+    // fixme: race condition?
     const paths = this.domain.getPaths();
     const templates = this.domain.templates.paths;
     
     const pathsByPattern: Map<string|null, string[]> = this.domain.patterns.sortPaths(paths);
-    const templatePathsByPattern: Map<string|null, string[]> = this.domain.patterns.sortPaths(templates);
+    // const templatePathsByPattern: Map<string|null, string[]> = this.domain.patterns.sortPaths(templates);
 
     // fixme: sortPaths returns catch-all pattern actual glob (i.e., not
     // undefined or null)
@@ -271,24 +272,36 @@ export class LocalWrapper extends Wrapper {
         pathsByPattern.set(null, catchallPatternPaths);
         pathsByPattern.delete(catchall);
       };
-      const catchallPatternTempates = templatePathsByPattern.get(catchall);
-      if (catchallPatternTempates !== undefined) {
-        templatePathsByPattern.set(null, catchallPatternTempates);
-        templatePathsByPattern.delete(catchall);
-      }
+      // const catchallPatternTempates = templatePathsByPattern.get(catchall);
+      // if (catchallPatternTempates !== undefined) {
+      //   templatePathsByPattern.set(null, catchallPatternTempates);
+      //   templatePathsByPattern.delete(catchall);
+      // }
     };
 
+    const templatePathsByPattern: Map<string|null, string[]> = new Map();
     const patternsByPath: Map<string, string | null> = new Map();
     // todo: read https://mariusschulz.com/blog/downlevel-iteration-for-es3-es5-in-typescript
     Array.from(pathsByPattern.entries()).forEach(([pattern, paths]) => {
+      templatePathsByPattern.set(
+        pattern,
+        paths.filter((path) => templates.includes(path))
+      );
       paths.forEach((path) => {
         patternsByPath.set(path, pattern);
       });
     });
     const targets: Target[] = paths.map((path) => {
-      const pattern = patternsByPath.get(path)!;
+      const pattern = patternsByPath.get(path);
+      if (pattern === undefined) {
+        throw new Error(`Unexpected undefined pattern for path ${path}`);
+      }
       // todo: have w2c-core return templates for a given pattern or path
-      const templates = templatePathsByPattern.get(pattern)!;
+      const templates = templatePathsByPattern.get(pattern);
+      if (templates === undefined) {
+        throw new Error(`Unexpected undefined templates for pattern ${pattern}`);
+      }
+
       // todo: add fallback template if applicable (from domain config)
       // todo: put same as path template first (also check domain config; preferSamePath)
       return {
@@ -311,6 +324,21 @@ export class LocalWrapper extends Wrapper {
     if (this.domain === undefined) {
       throw new Error();
     };
+
+    // todo: as far as I can recall, the domain's translate method is the first
+    // (and only?) which requires fetching the html from the target web server.
+    // doing so from a w2c iframe may be disallowed, depending on the target
+    // server's CORS configuration.
+    // On the other hand, having the app outside of an iframe may prevent
+    // fetching resources from metawiki or citoid, if the target page uses CSP.
+    // Consider using "frame-rpc". Have a fetch method on the target page. Have
+    // the iframe use this fetch method to preload the needed webpages before
+    // translation
+
+    // const webpage = this.domain.webpages.getWebpage(path);
+    // todo: implement setdata method
+    // webpage.cache.http.setData();
+    
     const outputs = await this.domain.translate(
       path,
       {

@@ -10,18 +10,19 @@ import {
   TemplateConfig,
   TemplateFieldConfig,
   TemplateFieldOutput,
+  TemplatePath,
   TestConfig,
   TestFieldConfig,
   TestFieldOutput,
 } from '../types';
 import { useAppSelector } from "../app/hooks";
-import { selectTemplateByPath } from "../app/templatesSlice";
+import { selectFallbackTemplate, selectTemplateByPath } from "../app/templatesSlice";
 import { selectTargetResultByPathAndTemplate } from "../app/targetsSlice";
 import { selectTestsByPath } from "../app/testsSlice";
   
 interface TargetResultViewerProps {
   path: string;
-  template: string;
+  template: TemplatePath;
   // templateConfig: TemplateConfig;
   // testConfig: TestConfig;
   // targetOutput: TargetOutput | undefined;
@@ -46,7 +47,14 @@ export function TargetResultViewer(props: TargetResultViewerProps) {
   const { t } = useTranslation();
 
   const template = useAppSelector(
-    (state) => selectTemplateByPath(state, props.template)
+    // todo: consider defining this elsewhere; we also use it in TemplateRow
+    (state) => {
+      if (props.template === null) {
+        return selectFallbackTemplate(state);
+      } else {
+        return selectTemplateByPath(state, props.template)
+      }
+    }
   );
   const test = useAppSelector(
     (state) => selectTestsByPath(state, props.path)
@@ -58,26 +66,50 @@ export function TargetResultViewer(props: TargetResultViewerProps) {
       props.template
     )
   );
+
+  if (template === undefined) {
+    throw new Error(`Unexpected undefined template for path ${props.template}`);
+  }
+  if (result === undefined) {
+    return (
+      <>
+      {
+        `Error: Could not find translation result for target ${props.path} using \
+        template for path ${props.template} in app's state.`
+      }
+      </>
+    );
+  }
   
   return (
     <Stack
       spacing={1}
     >
     {
-      // fixme: result!
-      result!.output?.fields.map((field) => {
+      result.output?.fields.map((field) => {
         const name = field.name;
-        return <TargetFieldComponent
-          name={field.name}
-          templateConfig={template!.fields.find((field) => field.name === name)!}
-          templateOutput={field.template}
-          testConfig={
-            test!.fields.find((field) => field.name === name) ??
-            {
-              name,
-              goal: undefined
-            }
+        const templateConfig = (
+          template.fields.find((field) => field.name === name) ??
+          {
+            name,
+            procedures: [],
+            required: false
           }
+        );
+        const testConfig = (
+          test?.fields.find((field) => field.name === name) ??
+          {
+            name,
+            goal: undefined
+          }
+        );
+
+        return <TargetFieldComponent
+          name={name}
+          key={name}
+          templateConfig={templateConfig}
+          templateOutput={field.template}
+          testConfig={testConfig}
           testOutput={field.test}
         />
       })

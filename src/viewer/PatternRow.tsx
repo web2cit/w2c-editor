@@ -67,7 +67,7 @@ export function PatternRow(props: PatternRowProps) {
   }
 
   const collapsed = false;
-  const catchall = pattern.pattern === null;
+  const catchall = props.pattern === null;
   
   if (fallbackTemplate) templates.push(fallbackTemplate);
 
@@ -114,11 +114,7 @@ export function PatternRow(props: PatternRowProps) {
               disabled={catchall}
               label="pattern"
               size="small"
-              value={
-                catchall ?
-                "*/**" :
-                props.pattern
-              }  // we should get this one from the config
+              value={pattern.pattern}
               variant="outlined"
             />
             <TextField
@@ -127,7 +123,7 @@ export function PatternRow(props: PatternRowProps) {
               size="small"
               value={
                 catchall ?
-                "fallback" :
+                "catchall" :
                 pattern.label
               }
               variant="outlined"

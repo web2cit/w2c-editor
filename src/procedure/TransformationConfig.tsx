@@ -50,6 +50,7 @@ function TransformationConfigComponent(props: TransformationConfigComponentProps
     {
       transformations.map((transformation) => (
         <MenuItem
+          key={transformation.type}
           value={transformation.type}
         >{t(camelToKebabCase(`transformation.${transformation.type}.label`))}
         </MenuItem>
@@ -64,6 +65,7 @@ function TransformationConfigComponent(props: TransformationConfigComponentProps
 
         return (
           <StepConfigParam
+            key={name}
             label={t(camelToKebabCase(
               `transformation.${props.type}.config.${name}.label`
             ))}

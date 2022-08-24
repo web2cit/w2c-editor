@@ -97,7 +97,9 @@ export function ConfigRevisionCard(props: ConfigRevisionCardProps) {
   }
 
   return (
-    <Card>
+    <Card
+      sx={{ flex: 1 }}
+    >
       <CardHeader
         title={
           t('config-revision-card.title.' + props.type)
@@ -134,7 +136,12 @@ export function ConfigRevisionCard(props: ConfigRevisionCardProps) {
         <CardActions>
           {/* todo: consider adding a button to see configuration file */}
           <IconButton
-            // disabled={!props.changed}
+            // todo: basing whether there are changes to be saved on whether the
+            // revid is null, would cause that making changes and then undo them
+            // be taken as if there were changes to be saved.
+            // An alternative would be to save the last revid loaded and
+            // calculate whether the local revision matches or not
+            disabled={revid !== null}
           >
             <Save />
           </IconButton>

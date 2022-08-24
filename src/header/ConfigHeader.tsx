@@ -84,7 +84,7 @@ export function ConfigHeader(props: ConfigHeaderProps) {
       <CardContent
         sx={{
           display: "flex",
-          gap: 1,
+          gap: 2,
           justifyContent: "space-between"
         }}
       >

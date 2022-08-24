@@ -43,8 +43,9 @@ function FieldOutputComponent(props: FieldOutputComponentProps) {
         <Stack spacing={1}>
         {
           props.values.length ?
-          props.values.map((value) => (
+          props.values.map((value, index) => (
             <OutputValueComponent
+              key={index}
               value={value.value}
               valid={value.valid}
               fieldname={props.fieldname}

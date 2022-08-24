@@ -67,9 +67,11 @@ function TranslationStepComponent(props: TranslationStepComponentProps) {
             {
               props.output === undefined ?
               <Skeleton variant="rectangular" animation="wave" /> :
-              props.output.values.map((value) => {
+              props.output.values.map((value, index) => {
                 return (
-                  <ListItem>
+                  <ListItem
+                    key={index}
+                  >
                     <Chip
                       label={value}
                     />

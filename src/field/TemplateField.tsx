@@ -53,6 +53,7 @@ export function TemplateFieldComponent(props: TemplateFieldComponentProps) {
         {
           props.config.procedures.map((procedure, index) => (
             <TranslationProcedureCard
+              key={index}
               fieldname={props.config.name}  // will move to context?
               config={procedure}
               output={props.output?.procedures[index]}

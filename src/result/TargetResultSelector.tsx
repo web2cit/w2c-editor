@@ -21,9 +21,18 @@ interface TargetResultSelectorProps {
 export function TargetResultSelector(props: TargetResultSelectorProps) {
   const { t } = useTranslation();
 
+  let selection: string;
+  if (props.selection === undefined) {
+    selection = '';
+  } else if (props.selection === null) {
+    selection = 'fallback';
+  } else {
+    selection = props.selection;
+  }
+
   function handleSelectionChange(e: SelectChangeEvent) {
     const selection = e.target.value;
-    props.onSelectionChange(selection);
+    props.onSelectionChange(selection === 'fallback' ? null : selection);
   }
 
   const result = props.results.filter(
@@ -51,7 +60,7 @@ export function TargetResultSelector(props: TargetResultSelectorProps) {
             // t('target-result.template-selector.label')
           }
           size="small"
-          value={props.selection ?? undefined}
+          value={selection}            
           renderValue={(value) => value}
           onChange={handleSelectionChange}
           sx={{ flex: 1 }}
@@ -59,7 +68,8 @@ export function TargetResultSelector(props: TargetResultSelectorProps) {
         {
           props.results.map((result) => (
             <MenuItem
-              value={result.template ?? undefined}
+              value={result.template ?? 'fallback'}
+              key={result.template}
               sx={{
                 opacity: result.output === null ? .38 : 1,
                 display: "flex"
@@ -76,7 +86,7 @@ export function TargetResultSelector(props: TargetResultSelectorProps) {
                 }}
               >
               {
-                result.template
+                result.template ?? <em>fallback</em>
               }
               </Typography>
               <Box

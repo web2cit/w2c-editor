@@ -64,6 +64,7 @@ export function TranslationProcedureCard(props: TranslationProcedureCardProps) {
             const output = props.output?.selections[index];
             return (
               <TranslationStep
+                key={index}
                 fieldname={props.fieldname}
                 stepConfig={stepConfig}
                 output={output}
@@ -97,6 +98,7 @@ export function TranslationProcedureCard(props: TranslationProcedureCardProps) {
             const output = props.output?.transformations[index];
             return (
               <TranslationStep
+                key={index}  
                 fieldname={props.fieldname}
                 stepConfig={stepConfig}
                 output={output}

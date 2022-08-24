@@ -22,7 +22,7 @@ interface TargetResultsComponentProps {
 export function TargetResultsComponent(props: TargetResultsComponentProps) {
   const { t } = useTranslation();
 
-  const [ resultSelection, setResultSelection ] = useState<TemplatePath|undefined>();
+  const [ resultSelection, setResultSelection ] = useState<TemplatePath>();
 
   const target = useAppSelector(
     (state) => selectTargetByPath(state, props.path)
@@ -32,7 +32,6 @@ export function TargetResultsComponent(props: TargetResultsComponentProps) {
   useEffect(() => {
     if (
       target !== undefined &&
-      target.preferredResult !== undefined &&
       resultSelection === undefined
     ) {
       setResultSelection(target.preferredResult);
@@ -100,7 +99,7 @@ export function TargetResultsComponent(props: TargetResultsComponentProps) {
       <Box>
         <Divider />
         {
-          resultSelection && <TargetResultViewer
+          resultSelection !== undefined && <TargetResultViewer
           path={props.path}
           template={resultSelection}            
         />

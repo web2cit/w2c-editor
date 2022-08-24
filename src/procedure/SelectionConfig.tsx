@@ -37,6 +37,7 @@ function SelectionConfigComponent(props: SelectionConfigComponentProps) {
       selections.map((selection) => (
         <MenuItem
           value={selection.type}
+          key={selection.type}
         >{t(camelToKebabCase(`selection.${selection.type}.label`))}
         </MenuItem>
       ))
@@ -50,6 +51,7 @@ function SelectionConfigComponent(props: SelectionConfigComponentProps) {
 
         return (
           <StepConfigParam
+            key={name}
             label={t(camelToKebabCase(
               `selection.${props.type}.config.${name}.label`
             ))}
