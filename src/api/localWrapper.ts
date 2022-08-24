@@ -9,7 +9,8 @@ import {
   PatternConfig,
   TestConfig,
   TemplateConfig,
-  FallbackTemplateConfig
+  FallbackTemplateConfig,
+  TargetFieldOutput
 } from "../types";
 import { FieldName } from "web2cit/dist/translationField";
 import { FallbackTemplateDefinition, TemplateDefinition, TestDefinition } from "web2cit/dist/types";
@@ -344,64 +345,84 @@ export class LocalWrapper extends Wrapper {
       // Update w2c-core so that it returns data in the most useful format
       // as per T302431
 
-      output.template.fields.forEach((field) => {
-        const name = field.name;
-        let fieldOutput = targetOutput.fields.find(
-          (field) => field.name === name
-        );
-        if (fieldOutput === undefined) {
-          fieldOutput = { name };
-          targetOutput.fields.push(fieldOutput);
-        }
-        fieldOutput.template = {
-          name: name,
-          values: field.output.map((value) => ({
-            value,
-            // todo: make w2c-core return validity for individual field
-            // output values
-            valid: true
-          })),
-          applicable: field.applicable,
-          procedures: field.procedures.map((procedure) => ({
-            selections: procedure.selections.map(
-              (selection) => ({
-                values: selection.output,
-                // todo: can w2c-core return output errors for individual
-                // selection steps?
-                error: undefined
-              })
-            ),
-            transformations: procedure.transformations.map(
-              (transformation) => ({
-                values: transformation.output,
-                // todo: can w2c-core return output errors for individual
-                // transformation steps?
-                error: undefined
-              })
-            )
-          })
-        )};
-      });
+      const fieldnames = Array.from(new Set([
+        ...output.template.fields.map((field) => field.name),
+        ...output.scores.fields.map((field) => field.fieldname)
+      ]));
 
       let scoreCount = 0;
-      let scoreSum = 0;      
-      output.scores.fields.forEach((field) => {
-        const name = field.fieldname;
-        let fieldOutput = targetOutput.fields.find(
-          (field) => field.name === name
+      let scoreSum = 0;
+      fieldnames.forEach((fieldname) => {
+        const templateFieldOutput = output.template.fields.find(
+          (field) => field.name === fieldname
         );
-        if (fieldOutput === undefined) {
-          fieldOutput = { name };
-          targetOutput.fields.push(fieldOutput);
+        // if (templateFieldOutput === undefined) {
+        //   throw new Error(
+        //     // w2c-core should always return a template field output, even if
+        //     // template field config is unavailable (in cases where test field
+        //     // output is available) 
+        //     `Unexpected undefined template field output from w2c-core`
+        //   )
+        // };
+
+        const testFieldOutput = output.scores.fields.find(
+          (field) => field.fieldname === fieldname
+        );
+        if (testFieldOutput !== undefined) {
+          scoreCount += 1;
+          scoreSum += testFieldOutput.score;
         };
-        fieldOutput.test = {
-          name,
-          score: field.score
-        }
-        scoreCount += 1;
-        scoreSum += field.score;
+
+        const fieldOutput: TargetFieldOutput = {
+          name: fieldname,
+          template: templateFieldOutput ? {
+            name: fieldname,
+            values: templateFieldOutput.output.map((value) => ({
+              value,
+              // todo: make w2c-core return validity for individual field
+              // output values
+              valid: true
+            })),
+            applicable: templateFieldOutput.applicable,
+            procedures: templateFieldOutput.procedures.map((procedure) => ({
+              selections: procedure.selections.map(
+                (selection) => ({
+                  values: selection.output,
+                  // todo: can w2c-core return output errors for individual
+                  // selection steps?
+                  error: undefined
+                })
+              ),
+              transformations: procedure.transformations.map(
+                (transformation) => ({
+                  values: transformation.output,
+                  // todo: can w2c-core return output errors for individual
+                  // transformation steps?
+                  error: undefined
+                })
+              )
+            })
+          )} : {
+            name: fieldname,
+            values: [],
+            // w2c-core should return data in a more useful format
+            // in the meantime, return applicable=true for undefined template
+            // fields, as if they were required=false
+            // note that w2c-core should fail if a mandatory template field
+            // was missing
+            // todo: make sure we mark the corresponding template field config
+            // as required=false
+            applicable: true,
+            procedures: []
+          },
+          test: {
+            name: fieldname,
+            score: testFieldOutput ? testFieldOutput.score : null
+          }
+        };
+        targetOutput.fields.push(fieldOutput);
       });
-      
+
       targetOutput.score = scoreCount > 0 ? scoreSum/scoreCount : null;
 
       // fixme: if empty values are not valid in authorLast, how come an

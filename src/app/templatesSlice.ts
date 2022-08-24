@@ -25,10 +25,10 @@ const templatesAdapter = createEntityAdapter<TemplateConfig>({
 
 const initialState: TemplatesState = {
   data: templatesAdapter.getInitialState({
-    status: 'draft'
+    status: 'idle'
   }),
   metadata: {
-    revid: null,
+    revid: 0,
     revisions: undefined,
     status: 'idle'
   }
@@ -77,6 +77,10 @@ export const {
 
 export const selectTemplateRevisions: ConfigRevisionsSelector<RootState> = (state) => {
   return state.templates.metadata.revisions;
+}
+
+export const selectTemplatesRevid = (state: RootState) => {
+  return state.templates.metadata.revid;
 }
 
 export function selectFallbackTemplate(

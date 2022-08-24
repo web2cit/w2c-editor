@@ -110,7 +110,7 @@ export const selections = [
     type: "citoid",
     config: [
       {
-        name: "fieldname",
+        name: "field",
         type: "string",
         validationFn: () => true,  // a regex or a validation function
         options: CITOID_FIELDS
@@ -193,6 +193,30 @@ export const transformations = [
           "zh-CN",
           "zh-TW"
         ]
+      }
+    ],
+    itemwise: true
+  },
+  {
+    type: "range",
+    params: [
+      {
+        name: "range",
+        type: "string",
+        validationFn: () => true,
+        options: []
+      }
+    ],
+    itemwise: true
+  },
+  {
+    type: "match",
+    params: [
+      {
+        name: "target",
+        type: "string",
+        validationFn: () => true,
+        options: []
       }
     ],
     itemwise: true

@@ -16,6 +16,8 @@ import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from 
 
 interface PatternsState extends ConfigState<PatternConfig> {
   // todo: consider moving this to the domain slice
+  // particularly, if we are going to have something like a config slice
+  // generator
   catchall?: CatchallPatternConfig;
 }
 
@@ -25,10 +27,10 @@ const patternsAdapter = createEntityAdapter<PatternConfig>({
 
 const initialState: PatternsState = {
   data: patternsAdapter.getInitialState({
-    status: 'draft'
+    status: 'idle'
   }),
   metadata: {
-    revid: null,
+    revid: 0,
     revisions: undefined,
     status: 'idle'
   }
@@ -77,6 +79,10 @@ export const {
 
 export const selectPatternRevisions: ConfigRevisionsSelector<RootState> = (state) => {
   return state.patterns.metadata.revisions;
+}
+
+export const selectPatternsRevid = (state: RootState) => {
+  return state.patterns.metadata.revid;
 }
 
 export function selectCatchallPattern(

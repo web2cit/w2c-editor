@@ -138,6 +138,7 @@ export function TemplateRow(props: TemplateRowProps) {
               <TargetRow
                 elevated={target.path !== props.path}
                 path={target.path}
+                key={target.path}
                 // score={target.score}
                 // current={target.path === props.currentPath}
               />

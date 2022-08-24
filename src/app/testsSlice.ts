@@ -23,10 +23,10 @@ const testsAdapter = createEntityAdapter<TestConfig>({
 
 const initialState: TestsState = {
   data: testsAdapter.getInitialState({
-    status: 'draft'
+    status: 'idle'
   }),
   metadata: {
-    revid: null,
+    revid: 0,
     revisions: undefined,
     status: 'idle'
   }
@@ -68,6 +68,10 @@ export const {
 
 export const selectTestRevisions: ConfigRevisionsSelector<RootState> = (state) => {
   return state.tests.metadata.revisions;
+}
+
+export const selectTestsRevid = (state: RootState) => {
+  return state.tests.metadata.revid;
 }
 
 // action creators

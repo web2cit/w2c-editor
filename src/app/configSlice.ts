@@ -8,6 +8,11 @@ import { allTargetOutputsExpired, refreshTargets, updateAllTargetOutputs } from 
 // separate config slices, we may have one single config slice, with actions
 // that take a config type parameter indicating what subslice should be
 // updated
+// Alternatively, we may have a config slice generator, to which we pass
+// functions, strings, etc particular to a given config slice, and which
+// returns selectors, actions and the reducer that will be passed to the store.
+// When deciding, consider use cases such as ConfigRevisionCard's, which uses
+// different slice methods depending on the card type (patterns, templates, etc)
 
 export interface ConfigState<T> {
   data: ConfigDataState<T>
@@ -15,14 +20,30 @@ export interface ConfigState<T> {
 }
 
 interface ConfigDataState<T> extends EntityState<T> {
-  // we may be loading config values from a remote revision
-  status: 'draft' | 'loading' | 'loaded';
+  status: (
+    // idle: no config revision has been loaded yet (including local-storage
+    // revision) or local changes have been made after last revision load
+    'idle' |
+    // loading: a config revision is currently being fetched and loaded
+    'loading' | 
+    // loaded: a config revision has been loaded (including local-storage rev)
+    // and no local changes have been made to it yet
+    'loaded'
+  );
 }
 
 interface ConfigMetadataState {
-  // revid will be null for draft status
-  // todo: ok to have it here in metadata?
-  revid: number | null;
+  revid: (
+    // 0: the initial empty config revision, to be used when no remote revisions
+    // are available, or when they have not been loaded yet
+    0 |
+    // number: the loaded config revision matches a remote revision; no changes
+    // have been made to it yet
+    number |
+    // null: the loaded config revision does not match the initial revision or
+    // any known remote revision; used when local changes have been made
+    null
+  )
   // list of available revisions, undefined if not fetched yet
   revisions: ConfigRevision[] | undefined;
   status: 'idle' | 'loading' | 'loaded'
@@ -71,7 +92,7 @@ export function getReducers<ConfigType>(adapter: EntityAdapter<ConfigType>) {
       configChangedHelper(state);
     };
   }
-
+  
   return { add, remove, move, update };
 }
 
@@ -114,7 +135,7 @@ export function getLoadRevisionReducers<ConfigType>(
   const loadRevisionFulfilledReducer = function (
     state: ConfigState<ConfigType>,
     action: PayloadAction<{
-      revid: number | null;  // may be null if we are pulling draft config from local storage
+      revid: number | null;
       values: ConfigType[];
     }>
   ) {
@@ -157,7 +178,7 @@ export function moveHelper<T>(
 // todo: read https://redux.js.org/usage/structuring-reducers/splitting-reducer-logic
 // I will be using this as a helper function
 export function configChangedHelper(state: Draft<ConfigState<any>>): void {
-  state.data.status = "draft";
+  state.data.status = "idle";
   state.metadata.revid = null;
 }
 

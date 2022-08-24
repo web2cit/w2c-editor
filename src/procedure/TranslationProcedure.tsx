@@ -31,7 +31,7 @@ export function TranslationProcedureCard(props: TranslationProcedureCardProps) {
   return (
     <Card>
       <CardHeader
-        title={t('translation-procedure.label', { index: props.index })}
+        title={t('translation-procedure.label', { index: props.index + 1 })}
         action={
           <ListItemActions
             keyPrefix="translation-procedure"
@@ -108,7 +108,7 @@ export function TranslationProcedureCard(props: TranslationProcedureCardProps) {
         }
           <Button variant="contained" >
           {
-            t('translation-procedure.add-selection')
+            t('translation-procedure.add-transformation')
           }
           </Button>
         </Stack>

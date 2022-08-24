@@ -1,6 +1,6 @@
 import { Box, Card, CardContent, Collapse, Divider, IconButton, Tooltip } from "@mui/material";
 import { ChevronRight, Delete, Help } from '@mui/icons-material';
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
 import TemplateFieldOutputComponent from './TemplateFieldOutput';
 import TestFieldComponent from './TestField';
@@ -30,6 +30,13 @@ interface TargetFieldComponentProps {
 
 export function TargetFieldComponent(props: TargetFieldComponentProps) {
   const { t } = useTranslation();
+
+  const [templateVisibility, setTemplateVisibility] = useState(false);
+
+  function handleTemplateDetailsToggle() {
+    setTemplateVisibility(!templateVisibility);
+  }
+
   const deletable = true;
   return (
     <Card
@@ -47,7 +54,7 @@ export function TargetFieldComponent(props: TargetFieldComponentProps) {
           sx={{ display: "flex", flexDirection: "column"}}
         >
           {
-            t('translation-field.name.' + camelToKebabCase(props.name))
+            t(camelToKebabCase(`field.${props.name}.label`))
           }
           <Box
             sx={{
@@ -71,7 +78,7 @@ export function TargetFieldComponent(props: TargetFieldComponentProps) {
             </Tooltip>
             <Tooltip
               title={
-                t('translation-field.info' + camelToKebabCase(props.name))
+                t('field.' + camelToKebabCase(props.name) + '.description')
               }
             >
               <Help />
@@ -81,7 +88,8 @@ export function TargetFieldComponent(props: TargetFieldComponentProps) {
         <TemplateFieldOutputComponent
           name={props.name}  // context?
           output={props.templateOutput}
-          detailsVisibility={true}
+          detailsVisibility={templateVisibility}
+          onDetailsVisibilityToggle={handleTemplateDetailsToggle}
           sx={{ flex: 1 }}
         />
         {/* Make sure it is not interpreted as collapse/expand */}
@@ -105,7 +113,7 @@ export function TargetFieldComponent(props: TargetFieldComponentProps) {
         />
       </CardContent>
       <Divider variant="middle" />
-      <Collapse in={true}>
+      <Collapse in={templateVisibility}>
         <CardContent>
           <TemplateFieldComponent
             config={props.templateConfig}

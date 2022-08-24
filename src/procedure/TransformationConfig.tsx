@@ -20,9 +20,20 @@ interface TransformationConfigComponentProps extends TransformationConfig {
 function TransformationConfigComponent(props: TransformationConfigComponentProps) {
   const { t } = useTranslation();
 
+  // get transformation type shape
   const transformation = transformations.filter(
     (transformation) => transformation.type === props.type
   )[0];
+
+  if (transformation === undefined) {
+    return (
+      <>
+      {
+        `Could not determine shape for transformation of type ${props.type}`
+      }
+      </>
+    )
+  }
 
   return (
     <Box
@@ -40,7 +51,7 @@ function TransformationConfigComponent(props: TransformationConfigComponentProps
       transformations.map((transformation) => (
         <MenuItem
           value={transformation.type}
-        >{t(camelToKebabCase(`selection.${transformation.type}.label`))}
+        >{t(camelToKebabCase(`transformation.${transformation.type}.label`))}
         </MenuItem>
       ))
     }

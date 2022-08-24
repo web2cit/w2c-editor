@@ -9,13 +9,26 @@ import {
   CardHeader,
   IconButton,
   MenuItem,
-  Select
+  Select,
+  SelectChangeEvent
 } from "@mui/material";
 import { Save } from "@mui/icons-material";
 import { ConfigMetadata } from "../types";
-import { selectPatternRevisions, loadRevision as loadPatternsRevision } from "../app/patternsSlice";
-import { selectTemplateRevisions, loadRevision as loadTemplatesRevision } from "../app/templatesSlice";
-import { selectTestRevisions, loadRevision as loadTestsRevision } from "../app/testsSlice";
+import {
+  selectPatternRevisions,
+  selectPatternsRevid,
+  loadRevision as loadPatternsRevision
+} from "../app/patternsSlice";
+import {
+  selectTemplateRevisions,
+  selectTemplatesRevid,
+  loadRevision as loadTemplatesRevision
+} from "../app/templatesSlice";
+import {
+  selectTestRevisions,
+  selectTestsRevid,
+  loadRevision as loadTestsRevision
+} from "../app/testsSlice";
 import { LoadRevisionThunkActionCreator } from "../app/configSlice";
   
 // interface ConfigRevisionCardProps extends ConfigMetadata {
@@ -40,27 +53,33 @@ export function ConfigRevisionCard(props: ConfigRevisionCardProps) {
   // indicating the config type?
   // alternatively, have a function that returns the appropriate selector, etc
   // depending on the config type
-  let selector;
+  // otherwise, we may have separate ConfigRevisionCard wrappers, one for each
+  // config type (PatternsRevisionCard, etc)
+  let selectRevisions;
+  let selectRevid;
   let loadRevision: (
     typeof loadPatternsRevision |
     typeof loadTemplatesRevision |
     typeof loadTestsRevision
   )
   if (props.type === "patterns") {
-    selector = selectPatternRevisions;
+    selectRevisions = selectPatternRevisions;
+    selectRevid = selectPatternsRevid;
     loadRevision = loadPatternsRevision;
   } else if (props.type === "templates") {
-    selector = selectTemplateRevisions;
+    selectRevisions = selectTemplateRevisions;
+    selectRevid = selectTemplatesRevid;
     loadRevision = loadTemplatesRevision;
   } else {
-    selector = selectTestRevisions;
+    selectRevisions = selectTestRevisions;
+    selectRevid = selectTestsRevid;
     loadRevision = loadTestsRevision;
   }
   
   // if (selector === undefined || loadRevision === undefined) throw new Error();
-  const revisions = useAppSelector(selector);
+  const revisions = useAppSelector(selectRevisions);
 
-  // todo: select currently loaded revid from state
+  const revid = useAppSelector(selectRevid);
 
   useEffect(() => {
     // todo: if no revision loaded (including draft revision)
@@ -70,6 +89,12 @@ export function ConfigRevisionCard(props: ConfigRevisionCardProps) {
       if (revid) dispatch(loadRevision(revid));
     }
   }, [revisions, dispatch, loadRevision]);
+
+  function handleRevisionChange(event: SelectChangeEvent) {
+    const revid = Number(event.target.value);
+    // todo: the ui should reflect that the revision is loading
+    dispatch(loadRevision(revid));
+  }
 
   return (
     <Card>
@@ -86,17 +111,28 @@ export function ConfigRevisionCard(props: ConfigRevisionCardProps) {
         >
           <Select
             label="revision id"
-            // value={revisions}
+            value={revid?.toString() ?? ''}
+            onChange={handleRevisionChange}
           >
+          {
+            revid === null &&
+            <MenuItem disabled key={null} value=""><em>Draft</em></MenuItem>
+          }
           { revisions && 
             revisions.map((revision) => (
-              <MenuItem key={revision.id} value={revision.id}>{revision.id}</MenuItem>
+              <MenuItem key={revision.id} value={revision.id}>
+                {`${revision.timestamp} (${revision.id})`}
+              </MenuItem>
             ))
-          }            
+          }
+          {
+            revid === 0 &&
+            <MenuItem disabled key={0} value={0}><em>Initial</em></MenuItem>
+          }
           </Select>
         </CardContent>
         <CardActions>
-          {/* maybe add a button to see configuration file */}
+          {/* todo: consider adding a button to see configuration file */}
           <IconButton
             // disabled={!props.changed}
           >

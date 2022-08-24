@@ -14,7 +14,7 @@ export interface FieldOutputValue {
   valid: boolean;
 }
 
-// export type Score = number | null;  // we need undefined for pending output
+export type Score = number | null;  // we need undefined for pending output
 export type TemplatePath = string | null;
 
 //
@@ -43,8 +43,8 @@ export interface TargetOutput {
 
 export interface TargetFieldOutput {
   name: string;
-  template?: TemplateFieldOutput;
-  test?: TestFieldOutput;
+  template: TemplateFieldOutput;
+  test: TestFieldOutput;
 }
 
 // todo: consider renaming PatternConfig etc as PatternDefinition (as in core)
@@ -128,5 +128,5 @@ export interface TestFieldConfig {
 
 export interface TestFieldOutput {
   name: string;
-  score: number;
+  score: Score;
 }
