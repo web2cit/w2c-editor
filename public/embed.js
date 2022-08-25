@@ -10,15 +10,37 @@
 
 // const url = document.URL;
 
-const web2cti = document.createElement("iframe");
-web2cti.src = `http://localhost:3000/#${document.URL}`;
-web2cti.style.position = "fixed";
-web2cti.style.right = 0;
-web2cti.style.top = 0;
-web2cti.style.height = "100%";
-web2cti.style.width = "50%";
-web2cti.style.zIndex = 2147483647;
-web2cti.style.background = "white";
-document.body.appendChild(web2cti);
+const web2cit = document.createElement("iframe");
+web2cit.src = `http://localhost:3000/#${document.URL}`;
+web2cit.style.position = "fixed";
+web2cit.style.right = 0;
+web2cit.style.top = 0;
+web2cit.style.height = "100%";
+web2cit.style.width = "50%";
+web2cit.style.zIndex = 2147483647;
+web2cit.style.background = "white";
+document.body.appendChild(web2cit);
+
+window.addEventListener("message", async (event) => {
+  // if (event.origin !== "https://example.org:8080") return;
+  if (event.data.type === "request" ) {
+    const { url } = event.data;
+    // todo: return an error message in case of error
+    const response = await fetch(url);
+    const text = await response.text();
+    const headers = new Map(response.headers);
+    web2cit.contentWindow.postMessage(
+      {
+        type: "response",
+        url,
+        text,
+        headers,
+        status: response.status
+      },
+      "*"    
+      // event.origin
+    )
+  }  
+}, false);
 
 // confiugre the listener for the preloader

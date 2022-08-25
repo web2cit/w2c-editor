@@ -17,12 +17,24 @@ import { FallbackTemplateDefinition, TemplateDefinition, TestDefinition } from "
 
 export class LocalWrapper extends Wrapper {
   domain: Domain | undefined;
+  originFetch?: typeof fetch;
+  
+  constructor(
+    originFetch?: typeof fetch
+  ) {
+    super();
+    this.originFetch = originFetch;
+  }
 
   setDomain(name: string): string {
     // todo: we should add w2c-editor to user agent header
     // fixme: how come the browser is not overriding our user agent?
     // https://meta.wikimedia.org/wiki/User-Agent_policy/es
-    this.domain = new Domain(name);
+    this.domain = new Domain(name,
+      {
+        originFetch: this.originFetch
+      }
+    );
     return this.domain.domain;
   }
 
@@ -325,20 +337,6 @@ export class LocalWrapper extends Wrapper {
       throw new Error();
     };
 
-    // todo: as far as I can recall, the domain's translate method is the first
-    // (and only?) which requires fetching the html from the target web server.
-    // doing so from a w2c iframe may be disallowed, depending on the target
-    // server's CORS configuration.
-    // On the other hand, having the app outside of an iframe may prevent
-    // fetching resources from metawiki or citoid, if the target page uses CSP.
-    // Consider using "frame-rpc". Have a fetch method on the target page. Have
-    // the iframe use this fetch method to preload the needed webpages before
-    // translation
-
-    // const webpage = this.domain.webpages.getWebpage(path);
-    // todo: implement setdata method
-    // webpage.cache.http.setData();
-    
     const outputs = await this.domain.translate(
       path,
       {

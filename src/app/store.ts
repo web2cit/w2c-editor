@@ -6,6 +6,7 @@ import testsReducer from './testsSlice';
 import targetsReducer from './targetsSlice';
 import { LocalWrapper } from '../api/localWrapper';
 import { Wrapper } from '../api/wrapper';
+import { crossFetch } from '../api/crossFetch';
 
 // we may have config and output slices
 // config slice may be split into patterns, templates and tests slices
@@ -23,7 +24,10 @@ import { Wrapper } from '../api/wrapper';
 // fetch config files
 // add config values
 // etc
-const wrapper: Wrapper = new LocalWrapper();
+const wrapper: Wrapper = new LocalWrapper(
+  // todo: this would only be included for bookmarklet sidebar editor
+  crossFetch
+);
 
 export const store = configureStore({
   reducer: {
