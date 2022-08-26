@@ -2,6 +2,7 @@
   "name": "w2c-editor",
   "version": "1.0.0-alpha.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
