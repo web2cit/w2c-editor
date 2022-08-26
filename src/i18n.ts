@@ -16,6 +16,9 @@ i18n
     fallbackLng: "en", // use en if detected lng is not available
     interpolation: {
       escapeValue: false // react already safes from xss
+    },
+    backend: {
+      loadPath: `${process.env.PUBLIC_URL}/locales/{{lng}}/{{ns}}.json`
     }
   });
 
