@@ -46,6 +46,15 @@ webpage cache of w2c-core.
 
 Finally, the best solution would be having a browser extension.
 
+# Deploying on Toolforge
+npm complains that React is not compatible with node<14. Consider running
+`npm install` from a shell launched as `webservice --backend=kubernetes node16 shell`.
+
+If `npm run build` is throwing a `RpcIpcMessagePortClosedError: Process xx exited [SIGKILL]`
+error, it may be that we run out of memory. See https://github.com/TFNS/CTFNote/issues/126.
+Try running from a shell launched as `webservice --mem 4Gi` to increase memory.
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
