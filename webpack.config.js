@@ -1,4 +1,5 @@
 const path = require('path');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ReactRefreshTypeScript = require('react-refresh-typescript');
@@ -56,6 +57,7 @@ module.exports = {
     hot: true,
   },
   plugins: [
+    new ESLintPlugin(),
     new CopyPlugin({
       patterns: [
         { from: "public" }
