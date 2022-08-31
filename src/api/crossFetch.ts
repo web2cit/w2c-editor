@@ -42,3 +42,31 @@ export const crossFetch: typeof fetch = (input): Promise<Response> => {
     );
   });
 }
+
+export function getRequestMessageListener(
+  fetchFn: typeof fetch,
+  window: Window
+): (event: MessageEvent<RequestMessageEvent>) => void {
+  return async (event) => {
+    // if (event.origin !== "https://example.org:8080") return;
+    if (event.data.type === "request" ) {
+      const { url } = event.data;
+      // todo: return an error message in case of error
+      const response = await fetchFn(url);
+      const text = await response.text();
+      const headers = new Map(response.headers);
+  
+      window.postMessage(
+        {
+          type: "response",
+          url,
+          text,
+          headers,
+          status: response.status
+        },
+        "*"    
+        // event.origin
+      )
+    }  
+  }
+}
