@@ -14,6 +14,9 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    // avoid setting module to "CommonJS", or webpack won't be able to
+    // tree-shake your code
+    // https://webpack.js.org/guides/typescript/#loader
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -24,5 +27,15 @@
   },
   "include": [
     "src"
-  ]
+  ],
+  // webpack will fail with an error if the module in compilerOptions is not
+  // commonjs, the setting is complete, else webpack will fail with an error.
+  // https://webpack.js.org/configuration/configuration-languages/
+  // Set an override for ts-node if one must keep "module": "ESNext" for tsc,
+  // webpack, or another build tool
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
 }

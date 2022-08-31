@@ -1,15 +1,21 @@
-const path = require('path');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const CopyPlugin = require("copy-webpack-plugin");
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const ReactRefreshTypeScript = require('react-refresh-typescript');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+import path from 'path';
+import ESLintPlugin from 'eslint-webpack-plugin';
+import CopyPlugin from "copy-webpack-plugin";
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import ReactRefreshTypeScript from 'react-refresh-typescript';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
-  entry: './src/index.tsx',
+  entry: {
+    main: './src/index.tsx',
+    embed: {
+      import: './embed/index.ts',
+      filename: './embed.js'
+    }
+  },
   devtool: 'source-map',
   module: {
     rules: [
@@ -60,7 +66,12 @@ module.exports = {
     new ESLintPlugin(),
     new CopyPlugin({
       patterns: [
-        { from: "public" }
+        {
+          from: "public",
+          globOptions: {
+            ignore: ["**/*.ts"]
+          }
+        }
       ],
     }),
     isDevelopment && new ReactRefreshWebpackPlugin(),
