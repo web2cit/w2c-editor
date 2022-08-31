@@ -2,8 +2,8 @@
   "name": "w2c-editor",
   "version": "1.0.0-alpha.1",
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production --progress"
+    "start": "webpack serve",
+    "build": "NODE_ENV=production webpack --progress"
   },
   "repository": {
     "type": "git",
