@@ -1,46 +1,37 @@
-# Getting Started with Create React App
+# Web2Cit editor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[Web2Cit](https://meta.wikimedia.org/wiki/Web2Cit) is a set of tools to
+collaboratively improve automatic citations in Wikipedia and other projects
+relying on
+[Zotero web translators](https://www.zotero.org/support/dev/translators/coding).
 
-## Available Scripts
+**Web2Cit editor** is an integrated Web2Cit configuration editor, with real-time
+translation feedback support. It is currently under development and should replace
+the current [Web2Cit editing](https://meta.wikimedia.org/wiki/Web2Cit/Editing)
+workflow, which relies on individual file editing using a JSON editor.
 
-In the project directory, you can run:
+This repository is mirrored on GitHub at https://github.com/web2cit/w2c-editor.
 
-### `npm start`
+# Documentation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Usage and development documentation is available and maintained collaboratively
+on-wiki at https://meta.wikimedia.org/wiki/Web2Cit/Docs/Editor.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+# Issues
 
-### `npm test`
+Please post any issues with the Web2Cit editor under the
+[web2cit-editor](https://phabricator.wikimedia.org/tag/web2cit-editor/) tag
+on Wikimedia's Phabricator. If unsure, you may use the
+[web2cit](https://phabricator.wikimedia.org/tag/web2cit/) umbrella tag instead.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Acknowledgements
 
-### `npm run build`
+Web2Cit has been initially developed with a
+[grant](https://meta.wikimedia.org/wiki/Grants:Project/Diegodlh/Web2Cit:_Visual_Editor_for_Citoid_Web_Translators)
+from the Wikimedia Foundation.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# License
+Copyright (C) 2022 Diego de la Hera and contributors.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This work is released under the terms of
+[GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html) or any later version.
